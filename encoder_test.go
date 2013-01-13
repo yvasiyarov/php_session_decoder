@@ -6,6 +6,7 @@ import (
 
 const BOOLEAN_VALUE_ENCODED = "login_ok|b:1;"
 const BOOLEAN_VALUE_ENCODED_WITHOUT_NAME = "b:1;"
+const INT_VALUE_ENCODED = "inteiro|i:34;"
 const BOOLEAN_AND_INT_ENCODED = "login_ok|b:1;inteiro|i:34;"
 
 func TestDecoderFabrica(t *testing.T) {
@@ -14,7 +15,6 @@ func TestDecoderFabrica(t *testing.T) {
         t.Error("Can not create decoder object\n")
     }
 }
-
 func TestDecodeBooleanValueWithoutName(t *testing.T) {
     decoder := NewPhpDecoder(BOOLEAN_VALUE_ENCODED_WITHOUT_NAME)
     if result, err := decoder.DecodeValue(); err != nil {
@@ -27,7 +27,7 @@ func TestDecodeBooleanValueWithoutName(t *testing.T) {
         }
     }
 }
-/*
+
 func TestDecodeBooleanValue(t *testing.T) {
     decoder := NewPhpDecoder(BOOLEAN_VALUE_ENCODED)
     if result, err := decoder.Decode(); err != nil {
@@ -42,18 +42,30 @@ func TestDecodeBooleanValue(t *testing.T) {
 }
 
 func TestDecodeIntValue(t *testing.T) {
+    decoder := NewPhpDecoder(INT_VALUE_ENCODED)
+    if result, err := decoder.Decode(); err != nil {
+        t.Errorf("Can not decode int value %#v \n", err)
+    } else {
+        if v, ok := (*result)["inteiro"]; !ok {
+            t.Errorf("Int value was not decoded \n")
+        } else if v != 34 {
+            t.Errorf("Int value was decoded incorrectly: %v\n", v)
+        }
+    }
+}
+
+/*
+func TestDecodeBooleanAndIntValue(t *testing.T) {
     decoder := NewPhpDecoder(BOOLEAN_AND_INT_ENCODED)
     if result, err := decoder.Decode(); err != nil {
-        t.Errorf("Can not decode boolens value %#v \n", err)
+        t.Errorf("Can not decode int value %#v \n", err)
     } else {
-        if _, ok := (*result)["login_ok"]; ok {
-            t.Errorf("Boolean value was not decoded \n")
-        }
-        if _, ok := (*result)["inteiro"]; ok {
+        if v, ok := (*result)["inteiro"]; ok {
             t.Errorf("Int value was not decoded \n")
+        } else if v != 34 {
+            t.Errorf("Int value was decoded incorrectly: %v\n", v)
         }
     }
 }
 */
-
 

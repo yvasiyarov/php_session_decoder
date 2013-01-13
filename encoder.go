@@ -5,9 +5,11 @@ import (
     "bytes"
     "strings"
     "fmt"
+    "strconv"
 )
-const VALUES_SEPARATOR = '|'
-
+const VALUE_NAME_SEPARATOR = '|'
+const TYPE_VALUE_SEPARATOR = ':'
+const VALUES_SEPARATOR     = ';'
 /*
 func encode() {
 }
@@ -34,25 +36,19 @@ func NewPhpDecoder(phpSession string) (*PhpDecoder) {
     return d
 }
 
-/*
 func (decoder *PhpDecoder)Decode() (*PhpSessionData, error) {
-    var (
-        token byte
-        err error
-    )
-    
-    if valueName, err := decoder.readUntil(VALUES_SEPARATOR, false); err == nil {
+    var resultErr error 
+    if valueName, err := decoder.readUntil(VALUE_NAME_SEPARATOR); err == nil {
         if value, err:= decoder.DecodeValue(); err == nil {
-            decoder.data[string(valueName)] = value
+            (*decoder.data)[valueName] = value
         } else {
-            errors.New("Can not read variable name:" + string(decoder.readUntil(VALUES_SEPARATOR, true)))
+            resultErr = errors.New(fmt.Sprintf("Can not read variable(%v) value:%v", valueName, err))
         }
     } else {
-       err = errors.New("Can not read variable name")
+        resultErr = errors.New("Can not read variable name")
     }
-    return decoder.data, err
+    return decoder.data, resultErr
 }
-*/
 
 func (decoder *PhpDecoder)DecodeValue() (PhpValue, error) {
     var (
@@ -60,24 +56,32 @@ func (decoder *PhpDecoder)DecodeValue() (PhpValue, error) {
         err error
     )
     
-    if token, err := decoder.source.ReadByte(); err == nil {
-        decoder.expect(':')
+    if token, _, err := decoder.source.ReadRune(); err == nil {
+        decoder.expect(TYPE_VALUE_SEPARATOR)
         switch token {
             case 'b': 
                 if rawValue, _, _err := decoder.source.ReadRune(); _err == nil {
                     value = rawValue == '1'
-                    err = errors.New("Can not read boolean value:")
+                    err = errors.New("Can not read boolean value")
                 } else {
                     err = errors.New("Can not read boolean value")
                 }
  
-                decoder.expect(';')
+                decoder.expect(VALUES_SEPARATOR)
+            case 'i': 
+                if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
+                    if value, _err = strconv.Atoi(rawValue); _err != nil {
+                        err = errors.New(fmt.Sprintf("Can not convert %v to Int:%v", rawValue, _err))
+                    }
+                } else {
+                    err = errors.New("Can not read int value")
+                }
         }
     }
     return value, err
 }
 
-func (decoder *PhpDecoder) readUntil(stopByte byte) ([]byte, error) {
+func (decoder *PhpDecoder) readUntil(stopByte byte) (string, error) {
     result := new(bytes.Buffer)
     var (
         token byte
@@ -90,7 +94,7 @@ func (decoder *PhpDecoder) readUntil(stopByte byte) ([]byte, error) {
             result.WriteByte(token)
         }
     }
-    return result.Bytes(), err
+    return result.String(), err
 }
 
 func (decoder *PhpDecoder) expect(expectRune rune) (error) {
