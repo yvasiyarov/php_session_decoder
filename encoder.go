@@ -79,6 +79,14 @@ func (decoder *PhpDecoder)DecodeValue() (PhpValue, error) {
                 } else {
                     err = errors.New("Can not read int value")
                 }
+            case 'd': 
+                if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
+                    if value, _err = strconv.ParseFloat(rawValue, 64); _err != nil {
+                        err = errors.New(fmt.Sprintf("Can not convert %v to Float:%v", rawValue, _err))
+                    }
+                } else {
+                    err = errors.New("Can not read float value")
+                }
         }
     }
     return value, err
