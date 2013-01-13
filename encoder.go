@@ -87,6 +87,24 @@ func (decoder *PhpDecoder)DecodeValue() (PhpValue, error) {
                 } else {
                     err = errors.New("Can not read float value")
                 }
+            case 's': 
+                if rawStrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+                    if strLen, _err = strconv.Atoi(rawStrlen); _err != nil {
+                        err = errors.New(fmt.Sprintf("Can not convert string length %v to int:%v", rawStrlen, _err))
+                    } else {
+                        decoder.expect('"')
+                        tmpValue := new([]byte, 0, strLen)
+                        if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
+                            err = errors.New(fmt.Sprintf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen))
+                        } else {
+                            value = string(tmpValue)
+                            decoder.expect('"')
+                            decoder.expect(VALUES_SEPARATOR)
+                        }
+                    }
+                } else {
+                    err = errors.New("Can not read string length")
+                }
         }
     }
     return value, err

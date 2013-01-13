@@ -9,7 +9,14 @@ const BOOLEAN_VALUE_ENCODED_WITHOUT_NAME = "b:1;"
 const INT_VALUE_ENCODED = "inteiro|i:34;"
 const BOOLEAN_AND_INT_ENCODED = "login_ok|b:1;inteiro|i:34;"
 const FLOAT_VALUE_ENCODED = "float_test|d:34.467999999900002;"
-
+const STRING_VALUE_ENCODED = "name|s:9:\"some text\";"
+//TODO: write bool false parse test
+// negative int parse test
+// negative float parse test
+// string parse test
+// string with quotes parse test
+// string with unicode parse
+// string with $/@ and etc 
 func TestDecoderFabrica(t *testing.T) {
     decoder := NewPhpDecoder("")
     if decoder == nil {
