@@ -54,18 +54,16 @@ func TestDecodeIntValue(t *testing.T) {
     }
 }
 
-/*
 func TestDecodeBooleanAndIntValue(t *testing.T) {
     decoder := NewPhpDecoder(BOOLEAN_AND_INT_ENCODED)
     if result, err := decoder.Decode(); err != nil {
         t.Errorf("Can not decode int value %#v \n", err)
     } else {
-        if v, ok := (*result)["inteiro"]; ok {
+        if v, ok := (*result)["inteiro"]; !ok {
             t.Errorf("Int value was not decoded \n")
         } else if v != 34 {
             t.Errorf("Int value was decoded incorrectly: %v\n", v)
         }
     }
 }
-*/
 

@@ -38,14 +38,17 @@ func NewPhpDecoder(phpSession string) (*PhpDecoder) {
 
 func (decoder *PhpDecoder)Decode() (*PhpSessionData, error) {
     var resultErr error 
-    if valueName, err := decoder.readUntil(VALUE_NAME_SEPARATOR); err == nil {
-        if value, err:= decoder.DecodeValue(); err == nil {
-            (*decoder.data)[valueName] = value
+    for {
+        if valueName, err := decoder.readUntil(VALUE_NAME_SEPARATOR); err == nil {
+            if value, err:= decoder.DecodeValue(); err == nil {
+                (*decoder.data)[valueName] = value
+            } else {
+                resultErr = errors.New(fmt.Sprintf("Can not read variable(%v) value:%v", valueName, err))
+                break;
+            }
         } else {
-            resultErr = errors.New(fmt.Sprintf("Can not read variable(%v) value:%v", valueName, err))
+            break;
         }
-    } else {
-        resultErr = errors.New("Can not read variable name")
     }
     return decoder.data, resultErr
 }
