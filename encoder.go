@@ -106,6 +106,29 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 			} else {
 				err = errors.New("Can not read string length")
 			}
+		case 'a':
+			if rawArrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+				if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
+					err = errors.New(fmt.Sprintf("Can not convert array length %v to int:%v", rawArrlen, _err))
+				} else {
+					decoder.expect('{')
+					array := make(PhpSessionData)
+                                        for i := 0; i <= arrLen; i++ {
+                                            if k, _err := decoder.DecodeValue(); err != nil {
+                                                err = errors.New(fmt.Sprintf("Can not read array key %v", _err))
+                                            } else if v, _err := decoder.DecodeValue(); err != nil {
+                                                err = errors.New(fmt.Sprintf("Can not read array value %v", _err))
+                                            } else if stringKey, ok := k.(string); ok {
+                                                array[stringKey] = v
+                                            } else {
+                                                err = fmt.Errorf("Key is not int")
+                                            }
+                                        }
+				        decoder.expect('}')
+				}
+			} else {
+				err = errors.New("Can not read array length")
+			}
 		}
 	}
 	return value, err
