@@ -21,10 +21,23 @@ type PhpValue interface{}
 
 type PhpSessionData map[string]PhpValue
 
+type PhpObject struct {
+    members   PhpSessionData
+    className string
+}
+func NewPhpObject() *PhpObject {
+	membersMap := make(PhpSessionData)
+	d := &PhpObject{
+		members:     membersMap,
+	}
+	return d
+}
+//TODO: write method for getting private/protected members
+
 type PhpDecoder struct {
 	source   *strings.Reader
 	position int
-	data     *PhpSessionData
+	data     PhpSessionData
 }
 
 func NewPhpDecoder(phpSession string) *PhpDecoder {
@@ -32,17 +45,17 @@ func NewPhpDecoder(phpSession string) *PhpDecoder {
 	d := &PhpDecoder{
 		source:   strings.NewReader(phpSession),
 		position: 0,
-		data:     &sessionData,
+		data:     sessionData,
 	}
 	return d
 }
 
-func (decoder *PhpDecoder) Decode() (*PhpSessionData, error) {
+func (decoder *PhpDecoder) Decode() (PhpSessionData, error) {
 	var resultErr error
 	for {
 		if valueName, err := decoder.readUntil(VALUE_NAME_SEPARATOR); err == nil {
 			if value, err := decoder.DecodeValue(); err == nil {
-				(*decoder.data)[valueName] = value
+				decoder.data[valueName] = value
 			} else {
 				resultErr = errors.New(fmt.Sprintf("Can not read variable(%v) value:%v", valueName, err))
 				break
@@ -92,9 +105,22 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 			value, err = decoder.decodeString()
 		case 'a':
 			value, err = decoder.decodeArray()
+		case 'O':
+			value, err = decoder.decodeObject()
 		}
 	}
 	return value, err
+}
+
+func (decoder *PhpDecoder) decodeObject() (*PhpObject, error) {
+	value := &PhpObject{}
+	var err error
+	
+	if value.className, err = decoder.decodeString(); err == nil {
+		decoder.expect(TYPE_VALUE_SEPARATOR)
+                value.members, err = decoder.decodeArray() 
+        } 
+        return value, err
 }
 
 func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
@@ -131,6 +157,7 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 	}
 	return value, err
 }
+
 
 func (decoder *PhpDecoder) decodeString() (string, error) {
 	var (

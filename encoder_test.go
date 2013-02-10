@@ -40,7 +40,7 @@ func TestDecodeBooleanValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode boolens value %#v \n", err)
 	} else {
-		if v, ok := (*result)["login_ok"]; !ok {
+		if v, ok := (result)["login_ok"]; !ok {
 			t.Errorf("Boolean value was not decoded \n")
 		} else if v != true {
 			t.Errorf("Boolean value was incorrectly decoded \n")
@@ -55,7 +55,7 @@ func TestDecodeIntValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode int value %#v \n", err)
 	} else {
-		if v, ok := (*result)["inteiro"]; !ok {
+		if v, ok := (result)["inteiro"]; !ok {
 			t.Errorf("Int value was not decoded \n")
 		} else if v != 34 {
 			t.Errorf("Int value was decoded incorrectly: %v\n", v)
@@ -70,7 +70,7 @@ func TestDecodeBooleanAndIntValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode int value %#v \n", err)
 	} else {
-		if v, ok := (*result)["inteiro"]; !ok {
+		if v, ok := (result)["inteiro"]; !ok {
 			t.Errorf("Int value was not decoded \n")
 		} else if v != 34 {
 			t.Errorf("Int value was decoded incorrectly: %v\n", v)
@@ -85,7 +85,7 @@ func TestDecodeFloatValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode float value %#v \n", err)
 	} else {
-		if v, ok := (*result)["float_test"]; !ok {
+		if v, ok := (result)["float_test"]; !ok {
 			t.Errorf("Float value was not decoded \n")
 		} else if v != 34.467999999900002 {
 			t.Errorf("Float value was decoded incorrectly: %v\n", v)
@@ -100,7 +100,7 @@ func TestDecodeStringValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode string value %#v \n", err)
 	} else {
-		if v, ok := (*result)["name"]; !ok {
+		if v, ok := (result)["name"]; !ok {
 			t.Errorf("String value was not decoded \n")
 		} else if v != "some text" {
 			t.Errorf("String value was decoded incorrectly: %v\n", v)
@@ -115,7 +115,7 @@ func TestDecodeArrayValue(t *testing.T) {
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode array value %#v \n", err)
 	} else {
-		if v, ok := (*result)["arr"]; !ok {
+		if v, ok := (result)["arr"]; !ok {
 			t.Errorf("Array value was not decoded \n")
 		} else if arrValue, ok := v.(PhpSessionData); ok != true {
 			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
