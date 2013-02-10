@@ -89,47 +89,70 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 				err = errors.New("Can not read float value")
 			}
 		case 's':
-			if rawStrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
-				if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
-					err = errors.New(fmt.Sprintf("Can not convert string length %v to int:%v", rawStrlen, _err))
+			value, err = decoder.decodeString()
+		case 'a':
+			value, err = decoder.decodeArray()
+		}
+	}
+	return value, err
+}
+
+func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
+	value := make(PhpSessionData)
+	var err error
+	if rawArrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+		if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
+			err = errors.New(fmt.Sprintf("Can not convert array length %v to int:%v", rawArrlen, _err))
+		} else {
+			decoder.expect('{')
+			for i := 0; i <= arrLen; i++ {
+				if k, _err := decoder.DecodeValue(); err != nil {
+					err = errors.New(fmt.Sprintf("Can not read array key %v", _err))
+				} else if v, _err := decoder.DecodeValue(); err != nil {
+					err = errors.New(fmt.Sprintf("Can not read array value %v", _err))
 				} else {
-					decoder.expect('"')
-					tmpValue := make([]byte, strLen, strLen)
-					if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
-						err = errors.New(fmt.Sprintf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen))
-					} else {
-						value = string(tmpValue)
-						decoder.expect('"')
-						decoder.expect(VALUES_SEPARATOR)
+					switch t := k.(type) {
+					default:
+						err = fmt.Errorf("Unexpected key type %T", t)
+					case string:
+						stringKey, _ := k.(string)
+						value[stringKey] = v
+					case int:
+						intKey, _ := k.(int)
+						strKey := strconv.Itoa(intKey)
+						value[strKey] = v
 					}
 				}
-			} else {
-				err = errors.New("Can not read string length")
 			}
-		case 'a':
-			if rawArrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
-				if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
-					err = errors.New(fmt.Sprintf("Can not convert array length %v to int:%v", rawArrlen, _err))
-				} else {
-					decoder.expect('{')
-					array := make(PhpSessionData)
-                                        for i := 0; i <= arrLen; i++ {
-                                            if k, _err := decoder.DecodeValue(); err != nil {
-                                                err = errors.New(fmt.Sprintf("Can not read array key %v", _err))
-                                            } else if v, _err := decoder.DecodeValue(); err != nil {
-                                                err = errors.New(fmt.Sprintf("Can not read array value %v", _err))
-                                            } else if stringKey, ok := k.(string); ok {
-                                                array[stringKey] = v
-                                            } else {
-                                                err = fmt.Errorf("Key is not int")
-                                            }
-                                        }
-				        decoder.expect('}')
-				}
+			decoder.expect('}')
+		}
+	} else {
+		err = errors.New("Can not read array length")
+	}
+	return value, err
+}
+
+func (decoder *PhpDecoder) decodeString() (string, error) {
+	var (
+		value string
+		err   error
+	)
+	if rawStrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+		if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
+			err = errors.New(fmt.Sprintf("Can not convert string length %v to int:%v", rawStrlen, _err))
+		} else {
+			decoder.expect('"')
+			tmpValue := make([]byte, strLen, strLen)
+			if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
+				err = errors.New(fmt.Sprintf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen))
 			} else {
-				err = errors.New("Can not read array length")
+				value = string(tmpValue)
+				decoder.expect('"')
+				decoder.expect(VALUES_SEPARATOR)
 			}
 		}
+	} else {
+		err = errors.New("Can not read string length")
 	}
 	return value, err
 }

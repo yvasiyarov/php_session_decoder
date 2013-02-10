@@ -4,7 +4,6 @@ import (
 	"testing"
 )
 
-
 //TODO: write bool false parse test
 // negative int parse test
 // negative float parse test
@@ -20,6 +19,7 @@ func TestDecoderFabrica(t *testing.T) {
 }
 
 const BOOLEAN_VALUE_ENCODED = "login_ok|b:1;"
+
 func TestDecodeBooleanValueWithoutName(t *testing.T) {
 	decoder := NewPhpDecoder(BOOLEAN_VALUE_ENCODED_WITHOUT_NAME)
 	if result, err := decoder.DecodeValue(); err != nil {
@@ -34,6 +34,7 @@ func TestDecodeBooleanValueWithoutName(t *testing.T) {
 }
 
 const BOOLEAN_VALUE_ENCODED_WITHOUT_NAME = "b:1;"
+
 func TestDecodeBooleanValue(t *testing.T) {
 	decoder := NewPhpDecoder(BOOLEAN_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -48,6 +49,7 @@ func TestDecodeBooleanValue(t *testing.T) {
 }
 
 const INT_VALUE_ENCODED = "inteiro|i:34;"
+
 func TestDecodeIntValue(t *testing.T) {
 	decoder := NewPhpDecoder(INT_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -62,6 +64,7 @@ func TestDecodeIntValue(t *testing.T) {
 }
 
 const BOOLEAN_AND_INT_ENCODED = "login_ok|b:1;inteiro|i:34;"
+
 func TestDecodeBooleanAndIntValue(t *testing.T) {
 	decoder := NewPhpDecoder(BOOLEAN_AND_INT_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -76,6 +79,7 @@ func TestDecodeBooleanAndIntValue(t *testing.T) {
 }
 
 const FLOAT_VALUE_ENCODED = "float_test|d:34.467999999900002;"
+
 func TestDecodeFloatValue(t *testing.T) {
 	decoder := NewPhpDecoder(FLOAT_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -90,6 +94,7 @@ func TestDecodeFloatValue(t *testing.T) {
 }
 
 const STRING_VALUE_ENCODED = "name|s:9:\"some text\";"
+
 func TestDecodeStringValue(t *testing.T) {
 	decoder := NewPhpDecoder(STRING_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -103,7 +108,8 @@ func TestDecodeStringValue(t *testing.T) {
 	}
 }
 
-const ARRAY_VALUE_ENCODED = "arr|a:2:{s:4:\"test\";b:1;i:0;i:5;}" 
+const ARRAY_VALUE_ENCODED = "arr|a:2:{s:4:\"test\";b:1;i:0;i:5;}"
+
 func TestDecodeArrayValue(t *testing.T) {
 	decoder := NewPhpDecoder(ARRAY_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -111,10 +117,12 @@ func TestDecodeArrayValue(t *testing.T) {
 	} else {
 		if v, ok := (*result)["arr"]; !ok {
 			t.Errorf("Array value was not decoded \n")
-		} else if arrType := reflect.TypeOf(v); arrType.Name() != "map" {
-			t.Errorf("Array value was decoded incorrectly: %v\n", arrType.Name())
-		} 
-                //TODO: check array fields
+		} else if arrValue, ok := v.(PhpSessionData); ok != true {
+			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
+		} else if value1, ok := arrValue["test"]; !ok || value1 != true {
+			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		} else if value2, ok := arrValue["0"]; !ok || value2 != 5 {
+			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		}
 	}
 }
-
