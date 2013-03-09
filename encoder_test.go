@@ -126,3 +126,22 @@ func TestDecodeArrayValue(t *testing.T) {
 		}
 	}
 }
+
+const OBJECT_VALUE_ENCODED = "obj|O:10:\"TestObject\":3:{s:1:\"a\";i:5;s:13:\"\x00TestObject\x00b\";s:4:\"priv\";s:4:\"\x00*\x00c\";i:8;}"
+func TestDecodeObjectValue(t *testing.T) {
+	decoder := NewPhpDecoder(OBJECT_VALUE_ENCODED)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode object value %#v \n", err)
+	} else {
+		if v, ok := (result)["obj"]; !ok {
+			t.Errorf("Object value was not decoded \n")
+                } else if objValue, ok := v.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if objValue.className != "TestObject" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.className)
+		} else if value1, ok := objValue.GetPublicMemberValue("a"); !ok || value1 != 5 {
+			t.Errorf("Public member of object was decoded incorrectly: %#v\n", v)
+		}
+	}
+}
+
