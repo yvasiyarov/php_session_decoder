@@ -149,3 +149,57 @@ func TestDecodeObjectValue(t *testing.T) {
 	}
 }
 
+const COMPLEX_ARRAY_ENCODED = "arr2|a:6:{s:10:\"bool_false\";b:0;s:7:\"neg_int\";i:-5;s:9:\"neg_float\";d:-5;s:6:\"quotes\";s:22:\"test\" and 'v' and `q` \";s:8:\"not_ansi\";s:8:\"тест\";s:5:\"test3\";s:15:\"@@@ test $$$ \\ \";}"
+func TestDecodeComplexArrayValue(t *testing.T) {
+	decoder := NewPhpDecoder(COMPLEX_ARRAY_ENCODED)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode array value %#v \n", err)
+	} else {
+		if v, ok := (result)["arr2"]; !ok {
+			t.Errorf("Array value was not decoded \n")
+		} else if arrValue, ok := v.(PhpSessionData); ok != true {
+			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
+		} else if value1, ok := arrValue["bool_false"]; !ok || value1 != false {
+			t.Errorf("Bool false value was decoded incorrectly: %#v\n", v)
+		} else if value2, ok := arrValue["neg_int"]; !ok || value2 != -5 {
+			t.Errorf("Negative int value was decoded incorrectly: %#v\n", v)
+		} else if value3, ok := arrValue["quotes"]; !ok || value3 != "test\" and 'v' and `q` " {
+			t.Errorf("String with quotes was decoded incorrectly: %#v\n", v)
+		} else if value4, ok := arrValue["not_ansi"]; !ok || value4 != "тест" {
+			t.Errorf("String with not ansi symbols was decoded incorrectly: %#v\n", v)
+		} else if value5, ok := arrValue["test3"]; !ok || value5 != "@@@ test $$$ \\ " {
+			t.Errorf("String with special symbols was decoded incorrectly: %#v\n", v)
+		}
+	}
+}
+
+const MULTIDIMENSIONAL_ARRAY_ENCODED = "arr3|a:1:{s:4:\"dim1\";a:5:{i:0;s:4:\"dim2\";i:1;i:0;i:2;i:3;i:3;i:5;i:4;a:2:{i:0;s:4:\"dim3\";i:1;i:5;}}}";
+func TestDecodeMultidimensionalArrayValue(t *testing.T) {
+	decoder := NewPhpDecoder(MULTIDIMENSIONAL_ARRAY_ENCODED)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode array value %#v \n", err)
+	} else {
+		if v, ok := (result)["arr3"]; !ok {
+			t.Errorf("Array value was not decoded \n")
+		} else if arrValue, ok := v.(PhpSessionData); ok != true {
+			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
+		} else if dim1, ok := arrValue["dim1"]; !ok {
+			t.Errorf("Second dimension of array was decoded incorrectly: %#v\n", dim1)
+		} else if dim1Value, ok := dim1.(PhpSessionData); ok != true {
+			t.Errorf("Second dimension of array was decoded incorrectly: %#v\n", dim1Value)
+		} else if dim1Value, ok := dim1.(PhpSessionData); ok != true {
+			t.Errorf("Second dimension of array was decoded incorrectly: %#v\n", dim1Value)
+		} else if value1, ok := dim1Value["0"]; !ok || value1 != "dim2" {
+			t.Errorf("Second dimension of array was decoded incorrectly: %#v\n", value1)
+		} else if value2, ok := dim1Value["3"]; !ok || value2 != 5 {
+			t.Errorf("Second dimension of array was decoded incorrectly: %#v\n", value2)
+		} else if dim2, ok := dim1Value["4"]; !ok {
+			t.Errorf("Third dimension of array was decoded incorrectly: %#v\n", dim2)
+		} else if dim2Value, ok := dim2.(PhpSessionData); ok != true {
+			t.Errorf("Third dimension of array was decoded incorrectly: %#v\n", dim2Value)
+		} else if value3, ok := dim2Value["0"]; !ok || value3 != "dim3" {
+			t.Errorf("Third dimension of array was decoded incorrectly: %#v\n", value3)
+		}
+	}
+}
+
