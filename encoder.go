@@ -136,6 +136,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 			}
 		case 's':
 			value, err = decoder.decodeString()
+			decoder.expect(VALUES_SEPARATOR)
 		case 'a':
 			value, err = decoder.decodeArray()
 		case 'O':
@@ -208,7 +209,6 @@ func (decoder *PhpDecoder) decodeString() (string, error) {
 			} else {
 				value = string(tmpValue)
 				decoder.expect('"')
-				decoder.expect(VALUES_SEPARATOR)
 			}
 		}
 	} else {

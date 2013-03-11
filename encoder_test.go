@@ -140,7 +140,11 @@ func TestDecodeObjectValue(t *testing.T) {
 		} else if objValue.className != "TestObject" {
 			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.className)
 		} else if value1, ok := objValue.GetPublicMemberValue("a"); !ok || value1 != 5 {
-			t.Errorf("Public member of object was decoded incorrectly: %#v\n", v)
+			t.Errorf("Public member of object was decoded incorrectly: %#v\n", objValue.members)
+		} else if value2, ok := objValue.GetPrivateMemberValue("b"); !ok || value2 != "priv" {
+			t.Errorf("Private member of object was decoded incorrectly: %#v\n", objValue.members)
+		} else if value3, ok := objValue.GetProtectedMemberValue("c"); !ok || value3 != 8 {
+			t.Errorf("Protected member of object was decoded incorrectly: %#v\n", objValue.members)
 		}
 	}
 }
