@@ -128,6 +128,7 @@ func TestDecodeArrayValue(t *testing.T) {
 }
 
 const OBJECT_VALUE_ENCODED = "obj|O:10:\"TestObject\":3:{s:1:\"a\";i:5;s:13:\"\x00TestObject\x00b\";s:4:\"priv\";s:4:\"\x00*\x00c\";i:8;}"
+
 func TestDecodeObjectValue(t *testing.T) {
 	decoder := NewPhpDecoder(OBJECT_VALUE_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -135,7 +136,7 @@ func TestDecodeObjectValue(t *testing.T) {
 	} else {
 		if v, ok := (result)["obj"]; !ok {
 			t.Errorf("Object value was not decoded \n")
-                } else if objValue, ok := v.(*PhpObject); ok != true {
+		} else if objValue, ok := v.(*PhpObject); ok != true {
 			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
 		} else if objValue.className != "TestObject" {
 			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.className)
@@ -150,6 +151,7 @@ func TestDecodeObjectValue(t *testing.T) {
 }
 
 const COMPLEX_ARRAY_ENCODED = "arr2|a:6:{s:10:\"bool_false\";b:0;s:7:\"neg_int\";i:-5;s:9:\"neg_float\";d:-5;s:6:\"quotes\";s:22:\"test\" and 'v' and `q` \";s:8:\"not_ansi\";s:8:\"тест\";s:5:\"test3\";s:15:\"@@@ test $$$ \\ \";}"
+
 func TestDecodeComplexArrayValue(t *testing.T) {
 	decoder := NewPhpDecoder(COMPLEX_ARRAY_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -173,7 +175,8 @@ func TestDecodeComplexArrayValue(t *testing.T) {
 	}
 }
 
-const MULTIDIMENSIONAL_ARRAY_ENCODED = "arr3|a:1:{s:4:\"dim1\";a:5:{i:0;s:4:\"dim2\";i:1;i:0;i:2;i:3;i:3;i:5;i:4;a:2:{i:0;s:4:\"dim3\";i:1;i:5;}}}";
+const MULTIDIMENSIONAL_ARRAY_ENCODED = "arr3|a:1:{s:4:\"dim1\";a:5:{i:0;s:4:\"dim2\";i:1;i:0;i:2;i:3;i:3;i:5;i:4;a:2:{i:0;s:4:\"dim3\";i:1;i:5;}}}"
+
 func TestDecodeMultidimensionalArrayValue(t *testing.T) {
 	decoder := NewPhpDecoder(MULTIDIMENSIONAL_ARRAY_ENCODED)
 	if result, err := decoder.Decode(); err != nil {
@@ -202,4 +205,3 @@ func TestDecodeMultidimensionalArrayValue(t *testing.T) {
 		}
 	}
 }
-
