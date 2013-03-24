@@ -76,62 +76,61 @@ func (encoder *PhpEncoder) encodeValue(value PhpValue) error {
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
 		strValue, _ := value.(string)
-        encoder.encodeString(strValue)
-    case PhpSessionData:
+		encoder.encodeString(strValue)
+	case PhpSessionData:
 		encoder.dest.WriteString("a")
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
 		arrValue, _ := value.(PhpSessionData)
-        encoder.encodeArrayCore(arrValue)
-    case *PhpObject:
+		encoder.encodeArrayCore(arrValue)
+	case *PhpObject:
 		encoder.dest.WriteString("O")
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
 		objValue, _ := value.(*PhpObject)
-        encoder.encodeString(objValue.GetClassName())
+		encoder.encodeString(objValue.GetClassName())
 
-        encoder.encodeArrayCore(objValue.GetMembers())
+		encoder.encodeArrayCore(objValue.GetMembers())
 	}
 	return err
 }
 
 func (encoder *PhpEncoder) encodeString(strValue string) {
-    valLen := strconv.Itoa(len(strValue))
-    encoder.dest.WriteString(valLen)
-    encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
+	valLen := strconv.Itoa(len(strValue))
+	encoder.dest.WriteString(valLen)
+	encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
-    encoder.dest.WriteRune('"')
-    encoder.dest.WriteString(strValue)
-    encoder.dest.WriteRune('"')
+	encoder.dest.WriteRune('"')
+	encoder.dest.WriteString(strValue)
+	encoder.dest.WriteRune('"')
 }
 
 func (encoder *PhpEncoder) encodeArrayCore(arrValue PhpSessionData) error {
 	var err error
-    
-    valLen := strconv.Itoa(len(arrValue))
-    encoder.dest.WriteString(valLen)
-    encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
-    
-    encoder.dest.WriteRune('{')
 
-    for k, v := range arrValue {
-        if intKey, _err := strconv.Atoi(k); _err == nil {
-            if err = encoder.encodeValue(intKey); err != nil {
-                break
-            }
-        } else {
-            if err = encoder.encodeValue(k); err != nil {
-                break
-            }
-        }
-        encoder.dest.WriteRune(VALUES_SEPARATOR)
-        if err = encoder.encodeValue(v); err != nil {
-            break
-        }
-        encoder.dest.WriteRune(VALUES_SEPARATOR)
-    }
+	valLen := strconv.Itoa(len(arrValue))
+	encoder.dest.WriteString(valLen)
+	encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
-    encoder.dest.WriteRune('}')
+	encoder.dest.WriteRune('{')
+
+	for k, v := range arrValue {
+		if intKey, _err := strconv.Atoi(k); _err == nil {
+			if err = encoder.encodeValue(intKey); err != nil {
+				break
+			}
+		} else {
+			if err = encoder.encodeValue(k); err != nil {
+				break
+			}
+		}
+		encoder.dest.WriteRune(VALUES_SEPARATOR)
+		if err = encoder.encodeValue(v); err != nil {
+			break
+		}
+		encoder.dest.WriteRune(VALUES_SEPARATOR)
+	}
+
+	encoder.dest.WriteRune('}')
 	return err
 }
-

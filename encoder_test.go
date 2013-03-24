@@ -1,8 +1,8 @@
 package php_session_decoder
 
 import (
+	"strings"
 	"testing"
-    "strings"
 )
 
 func TestEncoderFabrica(t *testing.T) {
@@ -54,7 +54,7 @@ func TestEncodeFloatValue(t *testing.T) {
 
 func TestEncodeStringValue(t *testing.T) {
 	data := make(PhpSessionData)
-	data["name"] = "some text" 
+	data["name"] = "some text"
 	encoder := NewPhpEncoder(data)
 	if result, err := encoder.Encode(); err != nil {
 		t.Errorf("Can not encode string value %#v \n", err)
@@ -68,15 +68,15 @@ func TestEncodeStringValue(t *testing.T) {
 func TestEncodeArrayValue(t *testing.T) {
 	data := make(PhpSessionData)
 	data2 := make(PhpSessionData)
-    data2["test"] = true
-    data2["0"] = 5 
+	data2["test"] = true
+	data2["0"] = 5
 	data["arr"] = data2
- 
+
 	encoder := NewPhpEncoder(data)
 	if result, err := encoder.Encode(); err != nil {
 		t.Errorf("Can not encode array value %#v \n", err)
 	} else {
-		if !strings.Contains(result, "i:0;i:5;") || !strings.Contains(result, "s:4:\"test\";b:1"){
+		if !strings.Contains(result, "i:0;i:5;") || !strings.Contains(result, "s:4:\"test\";b:1") {
 			t.Errorf("Array value was encoded incorrectly %v, %v\n", result, ARRAY_VALUE_ENCODED)
 		}
 	}
@@ -86,20 +86,19 @@ func TestEncodeObjectValue(t *testing.T) {
 	data := make(PhpSessionData)
 
 	obj := NewPhpObject()
-    obj.SetClassName("TestObject")
-    obj.SetPublicMemberValue("a", 5)
-    obj.SetProtectedMemberValue("c", 8)
-    obj.SetPrivateMemberValue("b", "priv")
+	obj.SetClassName("TestObject")
+	obj.SetPublicMemberValue("a", 5)
+	obj.SetProtectedMemberValue("c", 8)
+	obj.SetPrivateMemberValue("b", "priv")
 
 	data["obj"] = obj
- 
+
 	encoder := NewPhpEncoder(data)
 	if result, err := encoder.Encode(); err != nil {
 		t.Errorf("Can not encode object value %#v \n", err)
 	} else {
-		if !strings.Contains(result, "s:1:\"a\";i:5") || !strings.Contains(result, "10:\"TestObject\"") || !strings.Contains(result, "s:13:\"\x00TestObject\x00b\";s:4:\"priv\"") || !strings.Contains(result, "s:4:\"\x00*\x00c\";i:8"){
+		if !strings.Contains(result, "s:1:\"a\";i:5") || !strings.Contains(result, "10:\"TestObject\"") || !strings.Contains(result, "s:13:\"\x00TestObject\x00b\";s:4:\"priv\"") || !strings.Contains(result, "s:4:\"\x00*\x00c\";i:8") {
 			t.Errorf("Object value was encoded incorrectly %v\n", result)
 		}
 	}
 }
-
