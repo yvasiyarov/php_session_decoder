@@ -76,13 +76,7 @@ func (encoder *PhpEncoder) encodeValue(value PhpValue) error {
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
 		strValue, _ := value.(string)
-		valLen := strconv.Itoa(len(strValue))
-		encoder.dest.WriteString(valLen)
-		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
-
-		encoder.dest.WriteRune('"')
-		encoder.dest.WriteString(strValue)
-		encoder.dest.WriteRune('"')
+        encoder.encodeString(strValue)
     case PhpSessionData:
 		encoder.dest.WriteString("a")
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
@@ -94,14 +88,21 @@ func (encoder *PhpEncoder) encodeValue(value PhpValue) error {
 		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
 
 		objValue, _ := value.(*PhpObject)
-		classNameLen := strconv.Itoa(len(objValue.GetClassName()))
-		encoder.dest.WriteString(classNameLen)
-		encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
-		encoder.dest.WriteString(objValue.GetClassName())
+        encoder.encodeString(objValue.GetClassName())
 
         encoder.encodeArrayCore(objValue.GetMembers())
 	}
 	return err
+}
+
+func (encoder *PhpEncoder) encodeString(strValue string) {
+    valLen := strconv.Itoa(len(strValue))
+    encoder.dest.WriteString(valLen)
+    encoder.dest.WriteRune(TYPE_VALUE_SEPARATOR)
+
+    encoder.dest.WriteRune('"')
+    encoder.dest.WriteString(strValue)
+    encoder.dest.WriteRune('"')
 }
 
 func (encoder *PhpEncoder) encodeArrayCore(arrValue PhpSessionData) error {

@@ -97,7 +97,7 @@ func TestEncodeObjectValue(t *testing.T) {
 	if result, err := encoder.Encode(); err != nil {
 		t.Errorf("Can not encode object value %#v \n", err)
 	} else {
-		if !strings.Contains(result, "10:\"TestObject\"") || !strings.Contains(result, "s:1:\"a\";i:5") || !strings.Contains(result, "s:13:\"\x00TestObject\x00b\";s:4:\"priv\"") || !strings.Contains(result, "s:4:\"\x00*\x00c\";i:8") {
+		if !strings.Contains(result, "s:1:\"a\";i:5") || !strings.Contains(result, "10:\"TestObject\"") || !strings.Contains(result, "s:13:\"\x00TestObject\x00b\";s:4:\"priv\"") || !strings.Contains(result, "s:4:\"\x00*\x00c\";i:8"){
 			t.Errorf("Object value was encoded incorrectly %v\n", result)
 		}
 	}
