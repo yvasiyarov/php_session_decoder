@@ -9,15 +9,15 @@ import (
 )
 
 type PhpDecoder struct {
-	source   *strings.Reader
-	data     PhpSessionData
+	source *strings.Reader
+	data   PhpSessionData
 }
 
 func NewPhpDecoder(phpSession string) *PhpDecoder {
 	sessionData := make(PhpSessionData)
 	d := &PhpDecoder{
-		source:   strings.NewReader(phpSession),
-		data:     sessionData,
+		source: strings.NewReader(phpSession),
+		data:   sessionData,
 	}
 	return d
 }
@@ -180,4 +180,3 @@ func (decoder *PhpDecoder) expect(expectRune rune) error {
 	}
 	return err
 }
-

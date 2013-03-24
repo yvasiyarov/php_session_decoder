@@ -8,7 +8,6 @@ const VALUE_NAME_SEPARATOR = '|'
 const TYPE_VALUE_SEPARATOR = ':'
 const VALUES_SEPARATOR = ';'
 
-
 type PhpValue interface{}
 
 type PhpSessionData map[string]PhpValue
@@ -24,6 +23,18 @@ func NewPhpObject() *PhpObject {
 		members: membersMap,
 	}
 	return d
+}
+
+func (obj *PhpObject) GetClassName() string {
+	return obj.className
+}
+
+func (obj *PhpObject) SetClassName(cName string) {
+	obj.className = cName
+}
+
+func (obj *PhpObject) GetMembers() PhpSessionData {
+	return obj.members
 }
 
 func (obj *PhpObject) GetPrivateMemberValue(memberName string) (PhpValue, bool) {
@@ -58,4 +69,3 @@ func (obj *PhpObject) GetPublicMemberValue(memberName string) (PhpValue, bool) {
 func (obj *PhpObject) SetPublicMemberValue(memberName string, value PhpValue) {
 	obj.members[memberName] = value
 }
-

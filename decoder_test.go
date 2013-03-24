@@ -71,7 +71,7 @@ func TestDecodeBooleanAndIntValue(t *testing.T) {
 	}
 }
 
-const FLOAT_VALUE_ENCODED = "float_test|d:34.467999999900002;"
+const FLOAT_VALUE_ENCODED = "float_test|d:34.4679999999;"
 
 func TestDecodeFloatValue(t *testing.T) {
 	decoder := NewPhpDecoder(FLOAT_VALUE_ENCODED)
@@ -80,7 +80,7 @@ func TestDecodeFloatValue(t *testing.T) {
 	} else {
 		if v, ok := (result)["float_test"]; !ok {
 			t.Errorf("Float value was not decoded \n")
-		} else if v != 34.467999999900002 {
+		} else if v != 34.4679999999 {
 			t.Errorf("Float value was decoded incorrectly: %v\n", v)
 		}
 	}
@@ -101,7 +101,7 @@ func TestDecodeStringValue(t *testing.T) {
 	}
 }
 
-const ARRAY_VALUE_ENCODED = "arr|a:2:{s:4:\"test\";b:1;i:0;i:5;}"
+const ARRAY_VALUE_ENCODED = "arr|a:2:{s:4:\"test\";b:1;i:0;i:5;};"
 
 func TestDecodeArrayValue(t *testing.T) {
 	decoder := NewPhpDecoder(ARRAY_VALUE_ENCODED)
@@ -131,14 +131,14 @@ func TestDecodeObjectValue(t *testing.T) {
 			t.Errorf("Object value was not decoded \n")
 		} else if objValue, ok := v.(*PhpObject); ok != true {
 			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
-		} else if objValue.className != "TestObject" {
-			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.className)
+		} else if objValue.GetClassName() != "TestObject" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.GetClassName())
 		} else if value1, ok := objValue.GetPublicMemberValue("a"); !ok || value1 != 5 {
-			t.Errorf("Public member of object was decoded incorrectly: %#v\n", objValue.members)
+			t.Errorf("Public member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
 		} else if value2, ok := objValue.GetPrivateMemberValue("b"); !ok || value2 != "priv" {
-			t.Errorf("Private member of object was decoded incorrectly: %#v\n", objValue.members)
+			t.Errorf("Private member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
 		} else if value3, ok := objValue.GetProtectedMemberValue("c"); !ok || value3 != 8 {
-			t.Errorf("Protected member of object was decoded incorrectly: %#v\n", objValue.members)
+			t.Errorf("Protected member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
 		}
 	}
 }
@@ -198,4 +198,3 @@ func TestDecodeMultidimensionalArrayValue(t *testing.T) {
 		}
 	}
 }
-
