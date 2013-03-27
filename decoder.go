@@ -104,7 +104,7 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 			err = errors.New(fmt.Sprintf("Can not convert array length %v to int:%v", rawArrlen, _err))
 		} else {
 			decoder.expect('{')
-			for i := 0; i <= arrLen; i++ {
+			for i := 0; i < arrLen; i++ {
 				if k, _err := decoder.DecodeValue(); err != nil {
 					err = errors.New(fmt.Sprintf("Can not read array key %v", _err))
 				} else if v, _err := decoder.DecodeValue(); err != nil {

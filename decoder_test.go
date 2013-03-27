@@ -1,9 +1,8 @@
 package php_session_decoder
 
 import (
+	"io/ioutil"
 	"testing"
-        "io/ioutil"
-        "fmt"
 )
 
 func TestDecoderFabrica(t *testing.T) {
@@ -202,26 +201,16 @@ func TestDecodeMultidimensionalArrayValue(t *testing.T) {
 }
 
 func TestDecodeRealData(t *testing.T) {
-        testData, _ := ioutil.ReadFile("./data/test.session");
+	testData, _ := ioutil.ReadFile("./data/test.session")
 	decoder := NewPhpDecoder(string(testData))
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode array value %#v \n", err)
 	} else {
-               for k, _ := range result {
-                   fmt.Printf("key %v \n", k)
-               } 
-/*
-		if v, ok := (result)["arr"]; !ok {
-			t.Errorf("Array value was not decoded \n")
-		} else if arrValue, ok := v.(PhpSessionData); ok != true {
-			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
-		} else if value1, ok := arrValue["test"]; !ok || value1 != true {
-			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
-		} else if value2, ok := arrValue["0"]; !ok || value2 != 5 {
-			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		rootKeys := []string{"product_last_viewed", "core", "customer", "checkout", "store_default", "catalog"}
+		for _, v := range rootKeys {
+			if _, ok := result[v]; !ok {
+				t.Errorf("Can not find %v key\n", v)
+			}
 		}
-*/
 	}
 }
-
-
