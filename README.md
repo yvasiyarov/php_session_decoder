@@ -2,6 +2,7 @@ php_session_decoder
 ===================
 
 PHP session encoder/decoder written in Go  
+[![Build Status](https://secure.travis-ci.org/yvasiyarov/php_session_decoder.png?branch=master)](http://travis-ci.org/yvasiyarov/php_session_decoder)
 
 Installation
 ------------
