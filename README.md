@@ -9,6 +9,11 @@ Installation
 
 Install:
 
+    1. The recommended way to install is using gonuts.io:
+    nut get yvasiyarov/php_session_decoder
+    for more information, please, go to the http://www.gonuts.io/yvasiyarov/php_session_decoder
+    
+    2. Using default go get tool:
     go get github.com/yvasiyarov/php_session_decoder
 
 Getting started
