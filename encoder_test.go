@@ -80,7 +80,7 @@ func TestEncodeArrayValue(t *testing.T) {
 		if !strings.Contains(result, "i:0;i:5;") || !strings.Contains(result, "s:4:\"test\";b:1") || !strings.Contains(result, "s:5:\"test2\";N") {
 			t.Errorf("Array value was encoded incorrectly %v, %v\n", result, ARRAY_VALUE_ENCODED)
 		}
-    }
+	}
 }
 
 func TestEncodeObjectValue(t *testing.T) {

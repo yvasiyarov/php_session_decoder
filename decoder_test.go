@@ -118,8 +118,8 @@ func TestDecodeArrayValue(t *testing.T) {
 		} else if value2, ok := arrValue["0"]; !ok || value2 != 5 {
 			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
 		} else if value3, ok := arrValue["test2"]; !ok || value3 != nil {
-            t.Errorf("Array value was decoded incorrectly: %#v\n", v)
-        }
+			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		}
 	}
 }
 
