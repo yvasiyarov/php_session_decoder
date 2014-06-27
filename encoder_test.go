@@ -70,16 +70,17 @@ func TestEncodeArrayValue(t *testing.T) {
 	data2 := make(PhpSessionData)
 	data2["test"] = true
 	data2["0"] = 5
+	data2["test2"] = nil
 	data["arr"] = data2
 
 	encoder := NewPhpEncoder(data)
 	if result, err := encoder.Encode(); err != nil {
 		t.Errorf("Can not encode array value %#v \n", err)
 	} else {
-		if !strings.Contains(result, "i:0;i:5;") || !strings.Contains(result, "s:4:\"test\";b:1") {
+		if !strings.Contains(result, "i:0;i:5;") || !strings.Contains(result, "s:4:\"test\";b:1") || !strings.Contains(result, "s:5:\"test2\";N") {
 			t.Errorf("Array value was encoded incorrectly %v, %v\n", result, ARRAY_VALUE_ENCODED)
 		}
-	}
+    }
 }
 
 func TestEncodeObjectValue(t *testing.T) {

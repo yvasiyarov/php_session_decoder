@@ -102,7 +102,7 @@ func TestDecodeStringValue(t *testing.T) {
 	}
 }
 
-const ARRAY_VALUE_ENCODED = "arr|a:2:{s:4:\"test\";b:1;i:0;i:5;};"
+const ARRAY_VALUE_ENCODED = "arr|a:3:{s:4:\"test\";b:1;i:0;i:5;s:5:\"test2\";N;};"
 
 func TestDecodeArrayValue(t *testing.T) {
 	decoder := NewPhpDecoder(ARRAY_VALUE_ENCODED)
@@ -117,7 +117,9 @@ func TestDecodeArrayValue(t *testing.T) {
 			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
 		} else if value2, ok := arrValue["0"]; !ok || value2 != 5 {
 			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
-		}
+		} else if value3, ok := arrValue["test2"]; !ok || value3 != nil {
+            t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+        }
 	}
 }
 

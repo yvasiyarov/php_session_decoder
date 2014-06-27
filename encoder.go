@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-//	"strings"
+	//	"strings"
 )
 
 type PhpEncoder struct {
@@ -43,6 +43,12 @@ func (encoder *PhpEncoder) Encode() (string, error) {
 }
 
 func (encoder *PhpEncoder) encodeValue(value PhpValue) error {
+
+	if value == nil {
+		encoder.encodeNull()
+		return nil
+	}
+
 	var err error
 	switch t := value.(type) {
 	default:
@@ -92,7 +98,12 @@ func (encoder *PhpEncoder) encodeValue(value PhpValue) error {
 
 		encoder.encodeArrayCore(objValue.GetMembers())
 	}
+
 	return err
+}
+
+func (encoder *PhpEncoder) encodeNull() {
+	encoder.dest.WriteString("N")
 }
 
 func (encoder *PhpEncoder) encodeString(strValue string) {
