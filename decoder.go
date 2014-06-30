@@ -78,6 +78,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 			decoder.expect(VALUES_SEPARATOR)
 		case 'a':
 			value, err = decoder.decodeArray()
+			decoder.allow(VALUES_SEPARATOR)
 		case 'O':
 			value, err = decoder.decodeObject()
 		}
@@ -177,6 +178,16 @@ func (decoder *PhpDecoder) expect(expectRune rune) error {
 		err = errors.New(fmt.Sprintf("Can not read expected: %v", expectRune))
 	} else if token == expectRune {
 		err = errors.New(fmt.Sprintf("Read %v, but expected: %v", token, expectRune))
+	}
+	return err
+}
+
+func (decoder *PhpDecoder) allow(expectRune rune) error {
+	token, _, err := decoder.source.ReadRune()
+	if err != nil {
+		err = errors.New("Can not read next rune")
+	} else if token != expectRune {
+		err = decoder.source.UnreadRune()
 	}
 	return err
 }

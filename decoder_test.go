@@ -202,6 +202,31 @@ func TestDecodeMultidimensionalArrayValue(t *testing.T) {
 	}
 }
 
+const MULTIPLE_ARRAYS_ENCODED = "array1|a:1:{s:5:\"test1\";b:1;};array2|a:1:{s:5:\"test2\";b:1;};"
+
+func TestDecodeMultipleArrays(t *testing.T) {
+	decoder := NewPhpDecoder(MULTIPLE_ARRAYS_ENCODED)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode array value %#v \n", err)
+	} else {
+		if v, ok := result["array1"]; !ok {
+			t.Errorf("First array was not decoded \n")
+		} else if arrValue, ok := v.(PhpSessionData); ok != true {
+			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
+		} else if value1, ok := arrValue["test1"]; !ok || value1 != true {
+			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		}
+
+		if v, ok := result["array2"]; !ok {
+			t.Errorf("Second array was not decoded \n")
+		} else if arrValue, ok := v.(PhpSessionData); ok != true {
+			t.Errorf("Array value was decoded incorrectly: %#v \n", v)
+		} else if value2, ok := arrValue["test2"]; !ok || value2 != true {
+			t.Errorf("Array value was decoded incorrectly: %#v\n", v)
+		}
+	}
+}
+
 func TestDecodeRealData(t *testing.T) {
 	testData, _ := ioutil.ReadFile("./data/test.session")
 	decoder := NewPhpDecoder(string(testData))
