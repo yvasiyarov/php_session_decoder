@@ -29,7 +29,7 @@ func (decoder *PhpDecoder) Decode() (PhpSessionData, error) {
 			if value, err := decoder.DecodeValue(); err == nil {
 				decoder.data[valueName] = value
 			} else {
-				resultErr = errors.New(fmt.Sprintf("Can not read variable(%v) value:%v", valueName, err))
+				resultErr = fmt.Errorf("Can not read variable(%v) value:%v", valueName, err)
 				break
 			}
 		} else {
@@ -60,7 +60,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		case 'i':
 			if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
 				if value, _err = strconv.Atoi(rawValue); _err != nil {
-					err = errors.New(fmt.Sprintf("Can not convert %v to Int:%v", rawValue, _err))
+					err = fmt.Errorf("Can not convert %v to Int:%v", rawValue, _err)
 				}
 			} else {
 				err = errors.New("Can not read int value")
@@ -68,7 +68,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		case 'd':
 			if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
 				if value, _err = strconv.ParseFloat(rawValue, 64); _err != nil {
-					err = errors.New(fmt.Sprintf("Can not convert %v to Float:%v", rawValue, _err))
+					err = fmt.Errorf("Can not convert %v to Float:%v", rawValue, _err)
 				}
 			} else {
 				err = errors.New("Can not read float value")
@@ -102,14 +102,14 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 	var err error
 	if rawArrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
 		if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
-			err = errors.New(fmt.Sprintf("Can not convert array length %v to int:%v", rawArrlen, _err))
+			err = fmt.Errorf("Can not convert array length %v to int:%v", rawArrlen, _err)
 		} else {
 			decoder.expect('{')
 			for i := 0; i < arrLen; i++ {
 				if k, _err := decoder.DecodeValue(); err != nil {
-					err = errors.New(fmt.Sprintf("Can not read array key %v", _err))
+					err = fmt.Errorf("Can not read array key %v", _err)
 				} else if v, _err := decoder.DecodeValue(); err != nil {
-					err = errors.New(fmt.Sprintf("Can not read array value %v", _err))
+					err = fmt.Errorf("Can not read array value %v", _err)
 				} else {
 					switch t := k.(type) {
 					default:
@@ -139,12 +139,12 @@ func (decoder *PhpDecoder) decodeString() (string, error) {
 	)
 	if rawStrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
 		if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
-			err = errors.New(fmt.Sprintf("Can not convert string length %v to int:%v", rawStrlen, _err))
+			err = fmt.Errorf("Can not convert string length %v to int:%v", rawStrlen, _err)
 		} else {
 			decoder.expect('"')
 			tmpValue := make([]byte, strLen, strLen)
 			if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
-				err = errors.New(fmt.Sprintf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen))
+				err = fmt.Errorf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen)
 			} else {
 				value = string(tmpValue)
 				decoder.expect('"')
@@ -175,9 +175,9 @@ func (decoder *PhpDecoder) readUntil(stopByte byte) (string, error) {
 func (decoder *PhpDecoder) expect(expectRune rune) error {
 	token, _, err := decoder.source.ReadRune()
 	if err != nil {
-		err = errors.New(fmt.Sprintf("Can not read expected: %v", expectRune))
+		err = fmt.Errorf("Can not read expected: %v", expectRune)
 	} else if token == expectRune {
-		err = errors.New(fmt.Sprintf("Read %v, but expected: %v", token, expectRune))
+		err = fmt.Errorf("Read %v, but expected: %v", token, expectRune)
 	}
 	return err
 }
