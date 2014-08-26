@@ -48,6 +48,9 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 	if token, _, err := decoder.source.ReadRune(); err == nil {
 		decoder.expect(TYPE_VALUE_SEPARATOR)
 		switch token {
+		case 'N':
+			value = nil
+			decoder.expect(VALUES_SEPARATOR)
 		case 'b':
 			if rawValue, _, _err := decoder.source.ReadRune(); _err == nil {
 				value = rawValue == '1'
@@ -79,7 +82,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		case 'a':
 			value, err = decoder.decodeArray()
 			decoder.allow(VALUES_SEPARATOR)
-		case 'O':
+		case 'O', 'C':
 			value, err = decoder.decodeObject()
 		}
 	}
