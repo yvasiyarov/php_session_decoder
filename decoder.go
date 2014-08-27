@@ -113,7 +113,7 @@ func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
 
 	if value.className, err = decoder.decodeString(); err == nil {
 		decoder.expect(TYPE_VALUE_SEPARATOR)
-		value.RawData, err = decoder.decodeString()
+		value.RawData, err = decoder.decodeStringWithDelimiters('{', '}')
 	}
 
 	if decoder.DecodeFunc != nil {
@@ -159,6 +159,10 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 }
 
 func (decoder *PhpDecoder) decodeString() (string, error) {
+	return decoder.decodeStringWithDelimiters('"', '"')
+}
+
+func (decoder *PhpDecoder) decodeStringWithDelimiters(left, right rune) (string, error) {
 	var (
 		value string
 		err   error
@@ -167,17 +171,17 @@ func (decoder *PhpDecoder) decodeString() (string, error) {
 		if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
 			err = fmt.Errorf("Can not convert string length %v to int:%v", rawStrlen, _err)
 		} else {
-			decoder.expect('"')
+			decoder.expect(left)
 			tmpValue := make([]byte, strLen, strLen)
 			if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
 				err = fmt.Errorf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen)
 			} else {
 				value = string(tmpValue)
-				decoder.expect('"')
+				decoder.expect(right)
 			}
 		}
 	} else {
-		err = errors.New("Can not read string length")
+		err = fmt.Errorf("Can not read string length with delimiters L:%v [%#U], R:%v [%#U]", left, left, right, right)
 	}
 	return value, err
 }

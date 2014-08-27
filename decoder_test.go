@@ -3,6 +3,7 @@ package php_session_decoder
 import (
 	"io/ioutil"
 	"testing"
+	"encoding/json"
 )
 
 func TestDecoderFabrica(t *testing.T) {
@@ -299,6 +300,52 @@ func TestDecodeSerializableObjectValue(t *testing.T) {
 			t.Errorf("Private member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
 		} else if value3, ok := itemObjValue.GetProtectedMemberValue("c"); !ok || value3 != 8 {
 			t.Errorf("Protected member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
+		}
+	}
+}
+
+const SERIALIZABLE_OBJECT_FOO = "foo|C:3:\"Foo\":3:{foo}"
+
+func TestDecodeSerializableObjectFoo(t *testing.T) {
+	decoder := NewPhpDecoder(SERIALIZABLE_OBJECT_FOO)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode object value %#v \n", err)
+	} else {
+		if v, ok := (result)["foo"]; !ok {
+			t.Errorf("Object value was not decoded \n")
+		} else if objValue, ok := v.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if objValue.GetClassName() != "Foo" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.GetClassName())
+		} else if objValue.RawData != "foo" {
+			t.Errorf("RawData of object was decoded incorrectly: %#v\n", objValue.RawData)
+		}
+	}
+}
+
+const SERIALIZABLE_OBJECT_BAR = "bar|C:3:\"Bar\":19:{{\"public\":\"public\"}}"
+
+func TestDecodeSerializableObjectBar(t *testing.T) {
+	decoder := NewPhpDecoder(SERIALIZABLE_OBJECT_BAR)
+	decoder.DecodeFunc = func(s string) (buf PhpSessionData, err error) {
+		err = json.Unmarshal([]byte(s), &buf)
+		return
+	}
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode object value %#v \n", err)
+	} else {
+		if v, ok := (result)["bar"]; !ok {
+			t.Errorf("Object value was not decoded \n")
+		} else if objValue, ok := v.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if objValue.GetClassName() != "Bar" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.GetClassName())
+		} else if objValue.RawData != "{\"public\":\"public\"}" {
+			t.Errorf("RawData of object was decoded incorrectly: %#v\n", objValue.RawData)
+		} else if members := objValue.GetMembers(); members == nil {
+			t.Errorf("Object members was decoded incorrectly: %#v\n", objValue.GetMembers())
+		} else if public, ok := members["public"]; !ok || public != "public" {
+			t.Errorf("One of the item of object was decoded incorrectly: %#v\n", objValue.GetMembers())
 		}
 	}
 }
