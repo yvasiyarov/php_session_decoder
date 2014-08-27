@@ -90,7 +90,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		case 'C':
 			value, err = decoder.decodeSerializableObject()
 		default:
-			log.Fatalf("Undefined token: %v [%#U]", token, token)
+			log.Panicf("Undefined token: %v [%#U]", token, token)
 		}
 	}
 	return value, err
