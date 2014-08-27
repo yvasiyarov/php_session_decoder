@@ -252,13 +252,64 @@ func TestDecodeMultipleArraysWithoutSemicolons(t *testing.T) {
 	}
 }
 
+const SERIALIZABLE_OBJECT_VALUE_NO_FUNC_ENCODED = "obj|C:10:\"TestObject\":49:{a:3:{s:1:\"a\";i:5;s:1:\"b\";s:4:\"priv\";s:1:\"c\";i:8;}}"
+
+func TestDecodeSerializableObjectValueNoFunc(t *testing.T) {
+	decoder := NewPhpDecoder(SERIALIZABLE_OBJECT_VALUE_NO_FUNC_ENCODED)
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode object value %#v \n", err)
+	} else {
+		if v, ok := (result)["obj"]; !ok {
+			t.Errorf("Object value was not decoded \n")
+		} else if objValue, ok := v.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if objValue.GetClassName() != "TestObject" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.GetClassName())
+		} else if objValue.RawData != "a:3:{s:1:\"a\";i:5;s:1:\"b\";s:4:\"priv\";s:1:\"c\";i:8;}" {
+			t.Errorf("RawData of object was decoded incorrectly: %#v\n", objValue.RawData)
+		}
+	}
+}
+
+const SERIALIZABLE_OBJECT_VALUE_ENCODED = "object|C:10:\"TestObject\":96:{a:1:{s:4:\"item\";O:8:\"AbcClass\":3:{s:1:\"a\";i:5;s:11:\"\x00AbcClass\x00b\";s:7:\"private\";s:4:\"\x00*\x00c\";i:8;}}}"
+
+func TestDecodeSerializableObjectValue(t *testing.T) {
+	decoder := NewPhpDecoder(SERIALIZABLE_OBJECT_VALUE_ENCODED)
+	decoder.DecodeFunc = SerializableDecode
+	if result, err := decoder.Decode(); err != nil {
+		t.Errorf("Can not decode object value %#v \n", err)
+	} else {
+		if v, ok := (result)["object"]; !ok {
+			t.Errorf("Object value was not decoded \n")
+		} else if objValue, ok := v.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if objValue.GetClassName() != "TestObject" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", objValue.GetClassName())
+		} else if objValue.RawData != "a:1:{s:4:\"item\";O:8:\"AbcClass\":3:{s:1:\"a\";i:5;s:11:\"\x00AbcClass\x00b\";s:7:\"private\";s:4:\"\x00*\x00c\";i:8;}}" {
+			t.Errorf("RawData of object was decoded incorrectly: %#v\n", objValue.RawData)
+		} else if itemValue, ok := objValue.GetPublicMemberValue("item"); !ok {
+			t.Errorf("Public member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
+		} else if itemObjValue, ok := itemValue.(*PhpObject); ok != true {
+			t.Errorf("Object value was decoded incorrectly: %#v \n", v)
+		} else if itemObjValue.GetClassName() != "AbcClass" {
+			t.Errorf("Object name was decoded incorrectly: %#v\n", itemObjValue.GetClassName())
+		} else if value1, ok := itemObjValue.GetPublicMemberValue("a"); !ok || value1 != 5 {
+			t.Errorf("Public member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
+		} else if value2, ok := itemObjValue.GetPrivateMemberValue("b"); !ok || value2 != "private" {
+			t.Errorf("Private member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
+		} else if value3, ok := itemObjValue.GetProtectedMemberValue("c"); !ok || value3 != 8 {
+			t.Errorf("Protected member of object was decoded incorrectly: %#v\n", objValue.GetMembers())
+		}
+	}
+}
+
 func TestDecodeRealData(t *testing.T) {
 	testData, _ := ioutil.ReadFile("./data/test.session")
 	decoder := NewPhpDecoder(string(testData))
 	if result, err := decoder.Decode(); err != nil {
 		t.Errorf("Can not decode array value %#v \n", err)
 	} else {
-		rootKeys := []string{"product_last_viewed", "core", "customer", "checkout", "store_default", "catalog"}
+		rootKeys := []string{"product_last_viewed", "core", "customer", "checkout", "store_default", "catalog", "object"}
 		for _, v := range rootKeys {
 			if _, ok := result[v]; !ok {
 				t.Errorf("Can not find %v key\n", v)
