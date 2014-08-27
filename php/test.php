@@ -63,6 +63,30 @@ class TestObject implements Serializable {
     }
 }
 
+class Foo implements Serializable {
+    public function serialize() {
+        return 'foo';
+    }
+    public function unserialize($serialized) {
+        return;
+    }
+}
+
+class Bar implements Serializable {
+    public $public = 'public';
+    private $private = 'private';
+    protected $protected = 'protected';
+    public function serialize() {
+        return json_encode($this);
+    }
+    public function unserialize($serialized) {
+        return;
+    }
+}
+
+$foo = new Foo();
+$bar = new Bar();
+
 $object = new TestObject();
 $object->item = new AbcClass();
 
@@ -71,5 +95,7 @@ session_set_save_handler($handler, true);
 session_start();
 
 $_SESSION['object'] = $object;
+$_SESSION['foo'] = $foo;
+$_SESSION['bar'] = $bar;
 
 echo $handler->getFileName(session_id()) . PHP_EOL;
