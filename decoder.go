@@ -6,18 +6,22 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"log"
 )
 
 type PhpDecoder struct {
-	source *strings.Reader
-	data   PhpSessionData
+	DecodeFunc	SerializableDecodeFunc
+	RawData		string
+	source		*strings.Reader
+	data		PhpSessionData
 }
 
 func NewPhpDecoder(phpSession string) *PhpDecoder {
 	sessionData := make(PhpSessionData)
 	d := &PhpDecoder{
-		source: strings.NewReader(phpSession),
-		data:   sessionData,
+		RawData:	phpSession,
+		source:		strings.NewReader(phpSession),
+		data:		sessionData,
 	}
 	return d
 }
@@ -50,7 +54,6 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		switch token {
 		case 'N':
 			value = nil
-			decoder.expect(VALUES_SEPARATOR)
 		case 'b':
 			if rawValue, _, _err := decoder.source.ReadRune(); _err == nil {
 				value = rawValue == '1'
@@ -82,8 +85,12 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 		case 'a':
 			value, err = decoder.decodeArray()
 			decoder.allow(VALUES_SEPARATOR)
-		case 'O', 'C':
+		case 'O':
 			value, err = decoder.decodeObject()
+		case 'C':
+			value, err = decoder.decodeSerializableObject()
+		default:
+			log.Fatalf("Undefined token: %v [%#U]", token, token)
 		}
 	}
 	return value, err
@@ -97,6 +104,22 @@ func (decoder *PhpDecoder) decodeObject() (*PhpObject, error) {
 		decoder.expect(TYPE_VALUE_SEPARATOR)
 		value.members, err = decoder.decodeArray()
 	}
+	return value, err
+}
+
+func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
+	value := &PhpObject{}
+	var err error
+
+	if value.className, err = decoder.decodeString(); err == nil {
+		decoder.expect(TYPE_VALUE_SEPARATOR)
+		value.RawData, err = decoder.decodeString()
+	}
+
+	if decoder.DecodeFunc != nil {
+		value.members, err = decoder.DecodeFunc(value.RawData)
+	}
+
 	return value, err
 }
 
@@ -193,4 +216,23 @@ func (decoder *PhpDecoder) allow(expectRune rune) error {
 		err = decoder.source.UnreadRune()
 	}
 	return err
+}
+
+func SerializableDecode(s string) (valueData PhpSessionData, err error) {
+	var (
+		value		PhpValue
+		ok			bool
+	)
+
+	decoder := NewPhpDecoder(s)
+	decoder.DecodeFunc = SerializableDecode
+
+	if value, err = decoder.DecodeValue(); err == nil {
+		valueData, ok = value.(PhpSessionData)
+		if !ok {
+			err = errors.New("Error casting to PhpSessionData")
+		}
+	}
+
+	return
 }

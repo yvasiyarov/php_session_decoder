@@ -8,13 +8,16 @@ const VALUE_NAME_SEPARATOR = '|'
 const TYPE_VALUE_SEPARATOR = ':'
 const VALUES_SEPARATOR = ';'
 
+type SerializableDecodeFunc func(string) (PhpSessionData, error)
+
 type PhpValue interface{}
 
 type PhpSessionData map[string]PhpValue
 
 type PhpObject struct {
-	members   PhpSessionData
-	className string
+	RawData		string
+	members		PhpSessionData
+	className	string
 }
 
 func NewPhpObject() *PhpObject {
