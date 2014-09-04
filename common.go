@@ -8,8 +8,6 @@ const VALUE_NAME_SEPARATOR = '|'
 const TYPE_VALUE_SEPARATOR = ':'
 const VALUES_SEPARATOR = ';'
 
-type SerializableDecodeFunc func(string) (PhpSessionData, error)
-
 type PhpValue interface{}
 
 type PhpSessionData map[string]PhpValue
@@ -18,6 +16,7 @@ type PhpObject struct {
 	RawData		string
 	members		PhpSessionData
 	className	string
+	custom		bool
 }
 
 func NewPhpObject() *PhpObject {
@@ -26,6 +25,14 @@ func NewPhpObject() *PhpObject {
 		members: membersMap,
 	}
 	return d
+}
+
+func (obj *PhpObject) Custom(value bool) {
+	obj.custom = value
+}
+
+func (obj *PhpObject) IsCustom() bool {
+	return obj.custom
 }
 
 func (obj *PhpObject) GetClassName() string {

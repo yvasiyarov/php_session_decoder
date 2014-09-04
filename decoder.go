@@ -10,8 +10,7 @@ import (
 )
 
 type PhpDecoder struct {
-	DecodeFunc	SerializableDecodeFunc
-	RawData		string
+	DecodeFunc	CustomDecodeFunc
 	source		*strings.Reader
 	data		PhpSessionData
 }
@@ -19,7 +18,6 @@ type PhpDecoder struct {
 func NewPhpDecoder(phpSession string) *PhpDecoder {
 	sessionData := make(PhpSessionData)
 	d := &PhpDecoder{
-		RawData:	phpSession,
 		source:		strings.NewReader(phpSession),
 		data:		sessionData,
 	}
@@ -109,6 +107,7 @@ func (decoder *PhpDecoder) decodeObject() (*PhpObject, error) {
 
 func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
 	value := &PhpObject{}
+	value.Custom(true)
 	var err error
 
 	if value.className, err = decoder.decodeString(); err == nil {
@@ -222,21 +221,3 @@ func (decoder *PhpDecoder) allow(expectRune rune) error {
 	return err
 }
 
-func SerializableDecode(s string) (valueData PhpSessionData, err error) {
-	var (
-		value		PhpValue
-		ok			bool
-	)
-
-	decoder := NewPhpDecoder(s)
-	decoder.DecodeFunc = SerializableDecode
-
-	if value, err = decoder.DecodeValue(); err == nil {
-		valueData, ok = value.(PhpSessionData)
-		if !ok {
-			err = errors.New("Error casting to PhpSessionData")
-		}
-	}
-
-	return
-}

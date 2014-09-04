@@ -103,3 +103,25 @@ func TestEncodeObjectValue(t *testing.T) {
 		}
 	}
 }
+
+/*func TestEncodeSerializableObjectValueNoFunc(t *testing.T) {
+	data := make(PhpSessionData)
+
+	obj := NewPhpObject()
+	obj.Custom(true)
+	obj.SetClassName("TestObject")
+	obj.RawData = "a:3:{s:1:\"a\";i:5;s:1:\"b\";s:4:\"priv\";s:1:\"c\";i:8;}"
+
+	data["obj"] = obj
+
+	encoder := NewPhpEncoder(data)
+	if result, err := encoder.Encode(); err != nil {
+		t.Errorf("Can not encode object value %#v \n", err)
+	} else {
+		if !strings.Contains(result, "a:3:{s:1:\"a\";i:5;s:1:\"b\";s:4:\"priv\";s:1:\"c\";i:8;}") || !strings.Contains(result, "10:\"TestObject\"") {
+			t.Errorf("Object value was encoded incorrectly %v\n", result)
+		}
+	}
+}*/
+
+
