@@ -21,6 +21,13 @@ const (
 	FORMATTER_FLOAT			= 'f'
 )
 
+func NewPhpObject(className string) *PhpObject {
+	return &PhpObject{
+		className: className,
+		members: PhpArray{},
+	}
+}
+
 type SerializedDecodeFunc func(string) (PhpValue, error)
 
 type SerializedEncodeFunc func(PhpValue) (string, error)
@@ -80,6 +87,12 @@ func (self *PhpObject) GetPublic(name string) (v PhpValue, ok bool) {
 func (self *PhpObject) SetPublic(name string, value PhpValue) *PhpObject {
 	self.members[name] = value
 	return self
+}
+
+func NewPhpObjectSerialized(className string) *PhpObjectSerialized {
+	return &PhpObjectSerialized{
+		className: className,
+	}
 }
 
 type PhpObjectSerialized struct {
