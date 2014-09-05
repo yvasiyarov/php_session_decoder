@@ -27,7 +27,7 @@ func NewPhpDecoder(phpSession string) *PhpDecoder {
 func (decoder *PhpDecoder) Decode() (PhpSessionData, error) {
 	var resultErr error
 	for {
-		if valueName, err := decoder.readUntil(VALUE_NAME_SEPARATOR); err == nil {
+		if valueName, err := decoder.readUntil(byte(SEPARATOR_VALUE_NAME)); err == nil {
 			if value, err := decoder.DecodeValue(); err == nil {
 				decoder.data[valueName] = value
 			} else {
@@ -48,7 +48,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 	)
 
 	if token, _, err := decoder.source.ReadRune(); err == nil {
-		decoder.expect(TYPE_VALUE_SEPARATOR)
+		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
 		switch token {
 		case 'N':
 			value = nil
@@ -60,9 +60,9 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 				err = errors.New("Can not read boolean value")
 			}
 
-			decoder.expect(VALUES_SEPARATOR)
+			decoder.expect(rune(SEPARATOR_VALUES))
 		case 'i':
-			if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
+			if rawValue, _err := decoder.readUntil(byte(SEPARATOR_VALUES)); _err == nil {
 				if value, _err = strconv.Atoi(rawValue); _err != nil {
 					err = fmt.Errorf("Can not convert %v to Int:%v", rawValue, _err)
 				}
@@ -70,7 +70,7 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 				err = errors.New("Can not read int value")
 			}
 		case 'd':
-			if rawValue, _err := decoder.readUntil(VALUES_SEPARATOR); _err == nil {
+			if rawValue, _err := decoder.readUntil(byte(SEPARATOR_VALUES)); _err == nil {
 				if value, _err = strconv.ParseFloat(rawValue, 64); _err != nil {
 					err = fmt.Errorf("Can not convert %v to Float:%v", rawValue, _err)
 				}
@@ -79,10 +79,10 @@ func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
 			}
 		case 's':
 			value, err = decoder.decodeString()
-			decoder.expect(VALUES_SEPARATOR)
+			decoder.expect(rune(SEPARATOR_VALUES))
 		case 'a':
 			value, err = decoder.decodeArray()
-			decoder.allow(VALUES_SEPARATOR)
+			decoder.allow(rune(SEPARATOR_VALUES))
 		case 'O':
 			value, err = decoder.decodeObject()
 		case 'C':
@@ -99,7 +99,7 @@ func (decoder *PhpDecoder) decodeObject() (*PhpObject, error) {
 	var err error
 
 	if value.className, err = decoder.decodeString(); err == nil {
-		decoder.expect(TYPE_VALUE_SEPARATOR)
+		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
 		value.members, err = decoder.decodeArray()
 	}
 	return value, err
@@ -111,8 +111,8 @@ func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
 	var err error
 
 	if value.className, err = decoder.decodeString(); err == nil {
-		decoder.expect(TYPE_VALUE_SEPARATOR)
-		value.RawData, err = decoder.decodeStringWithDelimiters('{', '}')
+		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
+		value.RawData, err = decoder.decodeStringWithDelimiters(rune(DELIMITER_OBJECT_LEFT), rune(DELIMITER_OBJECT_RIGHT))
 	}
 
 	if decoder.DecodeFunc != nil {
@@ -125,11 +125,11 @@ func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
 func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 	value := make(PhpSessionData)
 	var err error
-	if rawArrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+	if rawArrlen, _err := decoder.readUntil(byte(SEPARATOR_VALUE_TYPE)); _err == nil {
 		if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
 			err = fmt.Errorf("Can not convert array length %v to int:%v", rawArrlen, _err)
 		} else {
-			decoder.expect('{')
+			decoder.expect(rune(DELIMITER_OBJECT_LEFT))
 			for i := 0; i < arrLen; i++ {
 				if k, _err := decoder.DecodeValue(); err != nil {
 					err = fmt.Errorf("Can not read array key %v", _err)
@@ -149,7 +149,7 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 					}
 				}
 			}
-			decoder.expect('}')
+			decoder.expect(rune(DELIMITER_OBJECT_RIGHT))
 		}
 	} else {
 		err = errors.New("Can not read array length")
@@ -158,7 +158,7 @@ func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
 }
 
 func (decoder *PhpDecoder) decodeString() (string, error) {
-	return decoder.decodeStringWithDelimiters('"', '"')
+	return decoder.decodeStringWithDelimiters(rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT))
 }
 
 func (decoder *PhpDecoder) decodeStringWithDelimiters(left, right rune) (string, error) {
@@ -166,7 +166,7 @@ func (decoder *PhpDecoder) decodeStringWithDelimiters(left, right rune) (string,
 		value string
 		err   error
 	)
-	if rawStrlen, _err := decoder.readUntil(TYPE_VALUE_SEPARATOR); _err == nil {
+	if rawStrlen, _err := decoder.readUntil(byte(SEPARATOR_VALUE_TYPE)); _err == nil {
 		if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
 			err = fmt.Errorf("Can not convert string length %v to int:%v", rawStrlen, _err)
 		} else {
