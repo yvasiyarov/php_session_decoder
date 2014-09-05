@@ -10,7 +10,6 @@ const (
 	TOKEN_OBJECT			= 'O'
 	TOKEN_OBJECT_SERIALIZED	= 'C'
 
-	SEPARATOR_VALUE_NAME	= '|'
 	SEPARATOR_VALUE_TYPE	= ':'
 	SEPARATOR_VALUES		= ';'
 
@@ -28,7 +27,7 @@ type SerializedEncodeFunc func(PhpValue) (string, error)
 
 type PhpValue interface{}
 
-type PhpArray map[string]PhpValue
+type PhpArray map[PhpValue]PhpValue
 
 type PhpObject struct {
 	className	string
