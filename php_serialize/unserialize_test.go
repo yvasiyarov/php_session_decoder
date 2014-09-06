@@ -99,14 +99,14 @@ func TestDecodeFloat64(t *testing.T) {
 		err	error
 	)
 
-	decoder := NewUnSerializer("d:42.3789;")
+	decoder := NewUnSerializer("d:42.378900000000002;")
 	if val, err = decoder.Decode(); err != nil {
 		t.Errorf("Error while decoding float4 value: %v\n", err)
 	} else {
 		if floatVal, ok := val.(float64); !ok {
 			t.Errorf("Unable to convert %v to float\n", val)
-		} else if floatVal != 42.3789 {
-			t.Errorf("Float64 value decoded incorrectly, expected: %v, have got: %v\n", 42.3789, floatVal)
+		} else if floatVal != 42.378900000000002 {
+			t.Errorf("Float64 value decoded incorrectly, expected: %v, have got: %v\n", 42.378900000000002, floatVal)
 		}
 	}
 }
@@ -117,14 +117,14 @@ func TestDecodeFloat64Minus(t *testing.T) {
 		err	error
 	)
 
-	decoder := NewUnSerializer("d:-42.3789;")
+	decoder := NewUnSerializer("d:-42.378900000000002;")
 	if val, err = decoder.Decode(); err != nil {
 		t.Errorf("Error while decoding float4 value: %v\n", err)
 	} else {
 		if floatVal, ok := val.(float64); !ok {
 			t.Errorf("Unable to convert %v to float\n", val)
-		} else if floatVal != -42.3789 {
-			t.Errorf("Float64 value decoded incorrectly, expected: %v, have got: %v\n", -42.3789, floatVal)
+		} else if floatVal != -42.378900000000002 {
+			t.Errorf("Float64 value decoded incorrectly, expected: %v, have got: %v\n", -42.378900000000002, floatVal)
 		}
 	}
 }

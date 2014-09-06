@@ -102,11 +102,11 @@ func (self *Serializer) encodeNumber(v PhpValue) (res string) {
 	// PHP has precision = 17 by default
 	case float32:
 		floatVal, _ := v.(float32)
-		val = strconv.FormatFloat(float64(floatVal), byte('f'), -1, 32)
+		val = strconv.FormatFloat(float64(floatVal), byte(FORMATTER_FLOAT), FORMATTER_PRECISION, 32)
 		isFloat = true
 	case float64:
 		floatVal, _ := v.(float64)
-		val = strconv.FormatFloat(float64(floatVal), byte('f'), -1, 64)
+		val = strconv.FormatFloat(float64(floatVal), byte(FORMATTER_FLOAT), FORMATTER_PRECISION, 64)
 		isFloat = true
 	}
 

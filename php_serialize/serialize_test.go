@@ -105,12 +105,12 @@ func TestEncodeFloat64(t *testing.T) {
 		err	error
 	)
 
-	source = 42.3789
+	source = 42.378900000000002
 	encoder := NewSerializer()
 	if val, err = encoder.Encode(source); err != nil {
 		t.Errorf("Error while encoding float value: %v\n", err)
 	} else {
-		if val != "d:42.3789;" {
+		if val != "d:42.378900000000002;" {
 			t.Errorf("Float value decoded incorrectly, have got %q\n", val)
 		}
 	}
@@ -123,12 +123,12 @@ func TestEncodeFloat64Minus(t *testing.T) {
 		err	error
 	)
 
-	source = -42.3789
+	source = -42.378900000000002
 	encoder := NewSerializer()
 	if val, err = encoder.Encode(source); err != nil {
 		t.Errorf("Error while encoding float value: %v\n", err)
 	} else {
-		if val != "d:-42.3789;" {
+		if val != "d:-42.378900000000002;" {
 			t.Errorf("Float value decoded incorrectly, have got %q\n", val)
 		}
 	}

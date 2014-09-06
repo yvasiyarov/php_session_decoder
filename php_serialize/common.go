@@ -18,7 +18,8 @@ const (
 	DELIMITER_OBJECT_LEFT	= '{'
 	DELIMITER_OBJECT_RIGHT	= '}'
 
-	FORMATTER_FLOAT			= 'f'
+	FORMATTER_FLOAT			= 'g'
+	FORMATTER_PRECISION		= 17
 )
 
 func NewPhpObject(className string) *PhpObject {
