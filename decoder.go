@@ -1,223 +1,66 @@
 package php_session_decoder
 
 import (
+	"io"
 	"bytes"
-	"errors"
-	"fmt"
-	"strconv"
 	"strings"
-	"log"
+	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 )
 
 type PhpDecoder struct {
-	DecodeFunc	CustomDecodeFunc
-	source		*strings.Reader
-	data		PhpSessionData
+	source	*strings.Reader
+	decoder	*php_serialize.UnSerializer
 }
 
 func NewPhpDecoder(phpSession string) *PhpDecoder {
-	sessionData := make(PhpSessionData)
-	d := &PhpDecoder{
+	decoder := &PhpDecoder{
 		source:		strings.NewReader(phpSession),
-		data:		sessionData,
+		decoder:	php_serialize.NewUnSerializer(""),
 	}
-	return d
+	decoder.decoder.SetReader(decoder.source)
+	return decoder
 }
 
-func (decoder *PhpDecoder) Decode() (PhpSessionData, error) {
-	var resultErr error
+func (self *PhpDecoder) SetSerializedDecodeFunc(f php_serialize.SerializedDecodeFunc) {
+	self.decoder.SetSerializedDecodeFunc(f)
+}
+
+func (self *PhpDecoder) Decode() (PhpSession, error) {
+	var (
+		name	string
+		err 	error
+		value	php_serialize.PhpValue
+	)
+	res := make(PhpSession)
+
 	for {
-		if valueName, err := decoder.readUntil(byte(SEPARATOR_VALUE_NAME)); err == nil {
-			if value, err := decoder.DecodeValue(); err == nil {
-				decoder.data[valueName] = value
-			} else {
-				resultErr = fmt.Errorf("Can not read variable(%v) value:%v", valueName, err)
-				break
-			}
-		} else {
+		if name, err = self.readName(); err != nil {
 			break
 		}
-	}
-	return decoder.data, resultErr
-}
-
-func (decoder *PhpDecoder) DecodeValue() (PhpValue, error) {
-	var (
-		value PhpValue
-		err   error
-	)
-
-	if token, _, err := decoder.source.ReadRune(); err == nil {
-		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
-		switch token {
-		case 'N':
-			value = nil
-		case 'b':
-			if rawValue, _, _err := decoder.source.ReadRune(); _err == nil {
-				value = rawValue == '1'
-				err = errors.New("Can not read boolean value")
-			} else {
-				err = errors.New("Can not read boolean value")
-			}
-
-			decoder.expect(rune(SEPARATOR_VALUES))
-		case 'i':
-			if rawValue, _err := decoder.readUntil(byte(SEPARATOR_VALUES)); _err == nil {
-				if value, _err = strconv.Atoi(rawValue); _err != nil {
-					err = fmt.Errorf("Can not convert %v to Int:%v", rawValue, _err)
-				}
-			} else {
-				err = errors.New("Can not read int value")
-			}
-		case 'd':
-			if rawValue, _err := decoder.readUntil(byte(SEPARATOR_VALUES)); _err == nil {
-				if value, _err = strconv.ParseFloat(rawValue, 64); _err != nil {
-					err = fmt.Errorf("Can not convert %v to Float:%v", rawValue, _err)
-				}
-			} else {
-				err = errors.New("Can not read float value")
-			}
-		case 's':
-			value, err = decoder.decodeString()
-			decoder.expect(rune(SEPARATOR_VALUES))
-		case 'a':
-			value, err = decoder.decodeArray()
-			decoder.allow(rune(SEPARATOR_VALUES))
-		case 'O':
-			value, err = decoder.decodeObject()
-		case 'C':
-			value, err = decoder.decodeSerializableObject()
-		default:
-			log.Panicf("Undefined token: %v [%#U]", token, token)
+		if value, err = self.decoder.Decode(); err != nil {
+			break
 		}
-	}
-	return value, err
-}
-
-func (decoder *PhpDecoder) decodeObject() (*PhpObject, error) {
-	value := &PhpObject{}
-	var err error
-
-	if value.className, err = decoder.decodeString(); err == nil {
-		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
-		value.members, err = decoder.decodeArray()
-	}
-	return value, err
-}
-
-func (decoder *PhpDecoder) decodeSerializableObject() (*PhpObject, error) {
-	value := &PhpObject{}
-	value.Custom(true)
-	var err error
-
-	if value.className, err = decoder.decodeString(); err == nil {
-		decoder.expect(rune(SEPARATOR_VALUE_TYPE))
-		value.RawData, err = decoder.decodeStringWithDelimiters(rune(DELIMITER_OBJECT_LEFT), rune(DELIMITER_OBJECT_RIGHT))
+		res[name] = value
 	}
 
-	if decoder.DecodeFunc != nil {
-		value.members, err = decoder.DecodeFunc(value.RawData)
+	if err == io.EOF {
+		err = nil
 	}
-
-	return value, err
+	return res, err
 }
 
-func (decoder *PhpDecoder) decodeArray() (PhpSessionData, error) {
-	value := make(PhpSessionData)
-	var err error
-	if rawArrlen, _err := decoder.readUntil(byte(SEPARATOR_VALUE_TYPE)); _err == nil {
-		if arrLen, _err := strconv.Atoi(rawArrlen); _err != nil {
-			err = fmt.Errorf("Can not convert array length %v to int:%v", rawArrlen, _err)
-		} else {
-			decoder.expect(rune(DELIMITER_OBJECT_LEFT))
-			for i := 0; i < arrLen; i++ {
-				if k, _err := decoder.DecodeValue(); err != nil {
-					err = fmt.Errorf("Can not read array key %v", _err)
-				} else if v, _err := decoder.DecodeValue(); err != nil {
-					err = fmt.Errorf("Can not read array value %v", _err)
-				} else {
-					switch t := k.(type) {
-					default:
-						err = fmt.Errorf("Unexpected key type %T", t)
-					case string:
-						stringKey, _ := k.(string)
-						value[stringKey] = v
-					case int:
-						intKey, _ := k.(int)
-						strKey := strconv.Itoa(intKey)
-						value[strKey] = v
-					}
-				}
-			}
-			decoder.expect(rune(DELIMITER_OBJECT_RIGHT))
-		}
-	} else {
-		err = errors.New("Can not read array length")
-	}
-	return value, err
-}
-
-func (decoder *PhpDecoder) decodeString() (string, error) {
-	return decoder.decodeStringWithDelimiters(rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT))
-}
-
-func (decoder *PhpDecoder) decodeStringWithDelimiters(left, right rune) (string, error) {
-	var (
-		value string
-		err   error
-	)
-	if rawStrlen, _err := decoder.readUntil(byte(SEPARATOR_VALUE_TYPE)); _err == nil {
-		if strLen, _err := strconv.Atoi(rawStrlen); _err != nil {
-			err = fmt.Errorf("Can not convert string length %v to int:%v", rawStrlen, _err)
-		} else {
-			decoder.expect(left)
-			tmpValue := make([]byte, strLen, strLen)
-			if nRead, _err := decoder.source.Read(tmpValue); _err != nil || nRead != strLen {
-				err = fmt.Errorf("Can not read string content %v. Read only: %v from %v", _err, nRead, strLen)
-			} else {
-				value = string(tmpValue)
-				decoder.expect(right)
-			}
-		}
-	} else {
-		err = fmt.Errorf("Can not read string length with delimiters L:%v [%#U], R:%v [%#U]", left, left, right, right)
-	}
-	return value, err
-}
-
-func (decoder *PhpDecoder) readUntil(stopByte byte) (string, error) {
-	result := new(bytes.Buffer)
+func (self *PhpDecoder) readName() (string, error) {
 	var (
 		token byte
 		err   error
 	)
+	buf := bytes.NewBuffer([]byte{})
 	for {
-		if token, err = decoder.source.ReadByte(); err != nil || token == stopByte {
+		if token, err = self.source.ReadByte(); err != nil || token == byte(SEPARATOR_VALUE_NAME) {
 			break
 		} else {
-			result.WriteByte(token)
+			buf.WriteByte(token)
 		}
 	}
-	return result.String(), err
+	return buf.String(), err
 }
-
-func (decoder *PhpDecoder) expect(expectRune rune) error {
-	token, _, err := decoder.source.ReadRune()
-	if err != nil {
-		err = fmt.Errorf("Can not read expected: %v", expectRune)
-	} else if token == expectRune {
-		err = fmt.Errorf("Read %v, but expected: %v", token, expectRune)
-	}
-	return err
-}
-
-func (decoder *PhpDecoder) allow(expectRune rune) error {
-	token, _, err := decoder.source.ReadRune()
-	if err != nil {
-		err = errors.New("Can not read next rune")
-	} else if token != expectRune {
-		err = decoder.source.UnreadRune()
-	}
-	return err
-}
-
