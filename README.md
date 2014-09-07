@@ -45,3 +45,9 @@ Example: Encode php session data:
         //Write data to redis/memcached/file/etc
     }
 
+Copyright
+----------------------------
+2013-2014 Yuriy Vasiyarov   
+2014 Yuriy Vasiyarov, Maksim Naumov. 
+
+All rights reserved.
