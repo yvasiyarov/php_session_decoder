@@ -1,17 +1,16 @@
 package php_serialize
 
 import (
-	"testing"
-	"strings"
 	"encoding/json"
+	"strings"
+	"testing"
 )
-
 
 func TestEncodeNil(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = nil
@@ -28,8 +27,8 @@ func TestEncodeNil(t *testing.T) {
 func TestEncodeBoolTrue(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = true
@@ -46,8 +45,8 @@ func TestEncodeBoolTrue(t *testing.T) {
 func TestEncodeBoolFalse(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = false
@@ -61,12 +60,11 @@ func TestEncodeBoolFalse(t *testing.T) {
 	}
 }
 
-
 func TestEncodeInt(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = 42
@@ -83,8 +81,8 @@ func TestEncodeInt(t *testing.T) {
 func TestEncodeIntMinus(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = -42
@@ -101,8 +99,8 @@ func TestEncodeIntMinus(t *testing.T) {
 func TestEncodeFloat64(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = 42.378900000000002
@@ -119,8 +117,8 @@ func TestEncodeFloat64(t *testing.T) {
 func TestEncodeFloat64Minus(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = -42.378900000000002
@@ -137,8 +135,8 @@ func TestEncodeFloat64Minus(t *testing.T) {
 func TestEncodeString(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = "foobar"
@@ -155,8 +153,8 @@ func TestEncodeString(t *testing.T) {
 func TestEncodeArray(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = PhpArray{
@@ -181,8 +179,8 @@ func TestEncodeArray(t *testing.T) {
 func TestEncodeArray2(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = map[PhpValue]PhpValue{
@@ -204,12 +202,11 @@ func TestEncodeArray2(t *testing.T) {
 	}
 }
 
-
 func TestEncodeArrayMap(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = PhpArray{
@@ -231,8 +228,8 @@ func TestEncodeArrayMap(t *testing.T) {
 func TestEncodeArrayArray(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	source = PhpArray{
@@ -256,8 +253,8 @@ func TestEncodeArrayArray(t *testing.T) {
 func TestEncodeObject(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	obj := NewPhpObject("Test")
@@ -285,8 +282,8 @@ func TestEncodeObject(t *testing.T) {
 func TestEncodeArrayObject(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	obj1 := NewPhpObject("Test1")
@@ -317,7 +314,7 @@ func TestEncodeArrayObject(t *testing.T) {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:12:\"\x00*\x00protected\";i:12;", val)
 		} else if !strings.Contains(val, "s:14:\"\x00Test1\x00private\";i:13;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:14:\"\x00Test1\x00private\";i:13;", val)
-		}  else if !strings.Contains(val, "i:1;O:5:\"Test2\"") {
+		} else if !strings.Contains(val, "i:1;O:5:\"Test2\"") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "i:1;O:5:\"Test2\"", val)
 		} else if !strings.Contains(val, "s:6:\"public\";i:21;") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "s:6:\"public\";i:21;", val)
@@ -332,8 +329,8 @@ func TestEncodeArrayObject(t *testing.T) {
 func TestEncodeObjectSerializable(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	obj := NewPhpObjectSerialized("TestSerializable")
@@ -353,8 +350,8 @@ func TestEncodeObjectSerializable(t *testing.T) {
 func TestEncodeObjectSerializableArray(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
+		val    string
+		err    error
 	)
 
 	obj := NewPhpObjectSerialized("TestSerializable1")
@@ -382,15 +379,15 @@ func TestEncodeObjectSerializableArray(t *testing.T) {
 func TestEncodeObjectSerializableJSON(t *testing.T) {
 	var (
 		source PhpValue
-		val string
-		err	error
-		f	SerializedEncodeFunc
+		val    string
+		err    error
+		f      SerializedEncodeFunc
 	)
 
 	f = func(v PhpValue) (string, error) {
 		var (
 			res []byte
-			err	error
+			err error
 		)
 		res, err = json.Marshal(v)
 		return string(res), err

@@ -1,21 +1,22 @@
 package php_session_decoder
 
 import (
-	"io"
 	"bytes"
+	"io"
 	"strings"
+
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 )
 
 type PhpDecoder struct {
-	source	*strings.Reader
-	decoder	*php_serialize.UnSerializer
+	source  *strings.Reader
+	decoder *php_serialize.UnSerializer
 }
 
 func NewPhpDecoder(phpSession string) *PhpDecoder {
 	decoder := &PhpDecoder{
-		source:		strings.NewReader(phpSession),
-		decoder:	php_serialize.NewUnSerializer(""),
+		source:  strings.NewReader(phpSession),
+		decoder: php_serialize.NewUnSerializer(""),
 	}
 	decoder.decoder.SetReader(decoder.source)
 	return decoder
@@ -27,9 +28,9 @@ func (self *PhpDecoder) SetSerializedDecodeFunc(f php_serialize.SerializedDecode
 
 func (self *PhpDecoder) Decode() (PhpSession, error) {
 	var (
-		name	string
-		err 	error
-		value	php_serialize.PhpValue
+		name  string
+		err   error
+		value php_serialize.PhpValue
 	)
 	res := make(PhpSession)
 

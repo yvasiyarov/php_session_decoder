@@ -12,8 +12,8 @@ func Serialize(v PhpValue) (string, error) {
 }
 
 type Serializer struct {
-	lastErr		error
-	encodeFunc	SerializedEncodeFunc
+	lastErr    error
+	encodeFunc SerializedEncodeFunc
 }
 
 func NewSerializer() *Serializer {
@@ -29,7 +29,7 @@ func (self *Serializer) Encode(v PhpValue) (string, error) {
 
 	switch t := v.(type) {
 	default:
-		self.saveError(fmt.Errorf("php_serialize: Unknown type %T", t))
+		self.saveError(fmt.Errorf("php_serialize: Unknown type %T with value %#v", t, v))
 	case nil:
 		value = self.encodeNull()
 	case bool:
@@ -62,7 +62,7 @@ func (self *Serializer) encodeBool(v PhpValue) string {
 }
 
 func (self *Serializer) encodeNumber(v PhpValue) (res string) {
-	var val	string
+	var val string
 
 	isFloat := false
 
@@ -110,7 +110,7 @@ func (self *Serializer) encodeNumber(v PhpValue) (res string) {
 		isFloat = true
 	}
 
-	if (isFloat) {
+	if isFloat {
 		res = string(TOKEN_FLOAT)
 	} else {
 		res = string(TOKEN_INT)
@@ -135,8 +135,8 @@ func (self *Serializer) encodeString(v PhpValue, left, right rune, isFinal bool)
 
 func (self *Serializer) encodeArray(v PhpValue, isFinal bool) (res string) {
 	var (
-		arrLen	int
-		data, s	string
+		arrLen  int
+		data, s string
 	)
 
 	if isFinal {
@@ -179,7 +179,6 @@ func (self *Serializer) encodeSerialized(v PhpValue) (res string) {
 
 	obj, _ := v.(*PhpObjectSerialized)
 	res = string(TOKEN_OBJECT_SERIALIZED) + self.prepareClassName(obj.className)
-
 
 	if self.encodeFunc == nil {
 		serialized = obj.GetData()
