@@ -1,9 +1,10 @@
 package php_session_decoder
 
 import (
-	"testing"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"testing"
+
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
 )
 
@@ -222,7 +223,7 @@ func TestDecodeSerializableObjectValue(t *testing.T) {
 			t.Errorf("Unable to convert %v to PhpArray\n", vv)
 		} else if v1, ok1 := arrVal["item"]; !ok1 {
 			t.Errorf("Array value decoded incorrectly, key `item` doest not exists\n")
-		} else if itemObjValue, ok1 := v1.(*php_serialize.PhpObject); !ok1  {
+		} else if itemObjValue, ok1 := v1.(*php_serialize.PhpObject); !ok1 {
 			t.Errorf("Unable to convert %v to int\n", v1)
 		} else if itemObjValue.GetClassName() != "AbcClass" {
 			t.Errorf("Object name was decoded incorrectly: %#v\n", itemObjValue.GetClassName())
@@ -258,7 +259,7 @@ func TestDecodeSerializableObjectBar(t *testing.T) {
 	f = func(s string) (php_serialize.PhpValue, error) {
 		var (
 			val map[string]string
-			err	error
+			err error
 		)
 		err = json.Unmarshal([]byte(s), &val)
 		return val, err

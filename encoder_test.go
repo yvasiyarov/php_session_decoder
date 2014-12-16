@@ -1,10 +1,11 @@
 package php_session_decoder
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
+
 	"github.com/yvasiyarov/php_session_decoder/php_serialize"
-	"encoding/json"
 )
 
 func TestEncodeBooleanValue(t *testing.T) {
@@ -73,8 +74,8 @@ func TestEncodeArrayValue(t *testing.T) {
 		"arr": php_serialize.PhpArray{
 			// Zero element
 			//php_serialize.PhpValue(0): 5,
-			0: 5,
-			"test": true,
+			0:       5,
+			"test":  true,
 			"test2": nil,
 		},
 	}

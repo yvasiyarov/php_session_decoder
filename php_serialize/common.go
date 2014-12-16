@@ -1,31 +1,31 @@
 package php_serialize
 
 const (
-	TOKEN_NULL				= 'N'
-	TOKEN_BOOL				= 'b'
-	TOKEN_INT				= 'i'
-	TOKEN_FLOAT				= 'd'
-	TOKEN_STRING			= 's'
-	TOKEN_ARRAY				= 'a'
-	TOKEN_OBJECT			= 'O'
-	TOKEN_OBJECT_SERIALIZED	= 'C'
+	TOKEN_NULL              = 'N'
+	TOKEN_BOOL              = 'b'
+	TOKEN_INT               = 'i'
+	TOKEN_FLOAT             = 'd'
+	TOKEN_STRING            = 's'
+	TOKEN_ARRAY             = 'a'
+	TOKEN_OBJECT            = 'O'
+	TOKEN_OBJECT_SERIALIZED = 'C'
 
-	SEPARATOR_VALUE_TYPE	= ':'
-	SEPARATOR_VALUES		= ';'
+	SEPARATOR_VALUE_TYPE = ':'
+	SEPARATOR_VALUES     = ';'
 
-	DELIMITER_STRING_LEFT	= '"'
-	DELIMITER_STRING_RIGHT	= '"'
-	DELIMITER_OBJECT_LEFT	= '{'
-	DELIMITER_OBJECT_RIGHT	= '}'
+	DELIMITER_STRING_LEFT  = '"'
+	DELIMITER_STRING_RIGHT = '"'
+	DELIMITER_OBJECT_LEFT  = '{'
+	DELIMITER_OBJECT_RIGHT = '}'
 
-	FORMATTER_FLOAT			= 'g'
-	FORMATTER_PRECISION		= 17
+	FORMATTER_FLOAT     = 'g'
+	FORMATTER_PRECISION = 17
 )
 
 func NewPhpObject(className string) *PhpObject {
 	return &PhpObject{
 		className: className,
-		members: PhpArray{},
+		members:   PhpArray{},
 	}
 }
 
@@ -38,8 +38,8 @@ type PhpValue interface{}
 type PhpArray map[PhpValue]PhpValue
 
 type PhpObject struct {
-	className	string
-	members		PhpArray
+	className string
+	members   PhpArray
 }
 
 func (self *PhpObject) GetClassName() string {
@@ -61,22 +61,22 @@ func (self *PhpObject) SetMembers(members PhpArray) *PhpObject {
 }
 
 func (self *PhpObject) GetPrivate(name string) (v PhpValue, ok bool) {
-	v, ok = self.members["\x00" + self.className + "\x00" + name]
+	v, ok = self.members["\x00"+self.className+"\x00"+name]
 	return
 }
 
 func (self *PhpObject) SetPrivate(name string, value PhpValue) *PhpObject {
-	self.members["\x00" + self.className + "\x00" + name] = value
+	self.members["\x00"+self.className+"\x00"+name] = value
 	return self
 }
 
 func (self *PhpObject) GetProtected(name string) (v PhpValue, ok bool) {
-	v, ok = self.members["\x00*\x00" + name]
+	v, ok = self.members["\x00*\x00"+name]
 	return
 }
 
 func (self *PhpObject) SetProtected(name string, value PhpValue) *PhpObject {
-	self.members["\x00*\x00" + name] = value
+	self.members["\x00*\x00"+name] = value
 	return self
 }
 
@@ -97,9 +97,9 @@ func NewPhpObjectSerialized(className string) *PhpObjectSerialized {
 }
 
 type PhpObjectSerialized struct {
-	className	string
-	data		string
-	value		PhpValue
+	className string
+	data      string
+	value     PhpValue
 }
 
 func (self *PhpObjectSerialized) GetClassName() string {

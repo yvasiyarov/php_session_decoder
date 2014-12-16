@@ -1,10 +1,10 @@
 package php_serialize
 
 import (
-	"strings"
-	"fmt"
 	"bytes"
+	"fmt"
 	"strconv"
+	"strings"
 )
 
 func UnSerialize(s string) (PhpValue, error) {
@@ -14,15 +14,15 @@ func UnSerialize(s string) (PhpValue, error) {
 }
 
 type UnSerializer struct {
-	source		string
-	r			*strings.Reader
-	lastErr		error
-	decodeFunc	SerializedDecodeFunc
+	source     string
+	r          *strings.Reader
+	lastErr    error
+	decodeFunc SerializedDecodeFunc
 }
 
 func NewUnSerializer(data string) *UnSerializer {
 	return &UnSerializer{
-		source:	data,
+		source: data,
 	}
 }
 
@@ -75,7 +75,7 @@ func (self *UnSerializer) decodeNull() PhpValue {
 func (self *UnSerializer) decodeBool() PhpValue {
 	var (
 		raw rune
-		err	error
+		err error
 	)
 	self.expect(rune(SEPARATOR_VALUE_TYPE))
 
@@ -89,8 +89,8 @@ func (self *UnSerializer) decodeBool() PhpValue {
 
 func (self *UnSerializer) decodeNumber(isFloat bool) PhpValue {
 	var (
-		raw	string
-		err	error
+		raw string
+		err error
 		val PhpValue
 	)
 	self.expect(rune(SEPARATOR_VALUE_TYPE))
@@ -114,16 +114,16 @@ func (self *UnSerializer) decodeNumber(isFloat bool) PhpValue {
 
 func (self *UnSerializer) decodeString(left, right rune, isFinal bool) PhpValue {
 	var (
-		err		error
-		val 	PhpValue
-		strLen	int
-		readLen	int
+		err     error
+		val     PhpValue
+		strLen  int
+		readLen int
 	)
 
 	strLen = self.readLen()
 	self.expect(left)
 
-	if (strLen > 0) {
+	if strLen > 0 {
 		buf := make([]byte, strLen, strLen)
 		if readLen, err = self.r.Read(buf); err != nil {
 			self.saveError(fmt.Errorf("php_serialize: Error while reading string value: %v", err))
@@ -232,8 +232,8 @@ func (self *UnSerializer) readUntil(stop byte) (string, error) {
 
 func (self *UnSerializer) readLen() int {
 	var (
-		raw	string
-		err	error
+		raw string
+		err error
 		val int
 	)
 	self.expect(rune(SEPARATOR_VALUE_TYPE))
@@ -259,4 +259,3 @@ func (self *UnSerializer) saveError(err error) {
 		self.lastErr = err
 	}
 }
-
