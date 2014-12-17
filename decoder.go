@@ -52,15 +52,15 @@ func (self *PhpDecoder) Decode() (PhpSession, error) {
 
 func (self *PhpDecoder) readName() (string, error) {
 	var (
-		token byte
+		token rune
 		err   error
 	)
 	buf := bytes.NewBuffer([]byte{})
 	for {
-		if token, err = self.source.ReadByte(); err != nil || token == byte(SEPARATOR_VALUE_NAME) {
+		if token, _, err = self.source.ReadRune(); err != nil || token == SEPARATOR_VALUE_NAME {
 			break
 		} else {
-			buf.WriteByte(token)
+			buf.WriteRune(token)
 		}
 	}
 	return buf.String(), err

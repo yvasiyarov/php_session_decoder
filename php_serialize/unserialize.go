@@ -3,9 +3,9 @@ package php_serialize
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
-	"log"
 )
 
 func UnSerialize(s string) (PhpValue, error) {
@@ -55,7 +55,7 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 		case TOKEN_FLOAT:
 			value = self.decodeNumber(true)
 		case TOKEN_STRING:
-			value = self.decodeString(rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT), true)
+			value = self.decodeString(DELIMITER_STRING_LEFT, DELIMITER_STRING_RIGHT, true)
 		case TOKEN_ARRAY:
 			value = self.decodeArray()
 		case TOKEN_OBJECT:
@@ -69,7 +69,7 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 }
 
 func (self *UnSerializer) decodeNull() PhpValue {
-	self.expect(rune(SEPARATOR_VALUES))
+	self.expect(SEPARATOR_VALUES)
 	return nil
 }
 
@@ -78,13 +78,13 @@ func (self *UnSerializer) decodeBool() PhpValue {
 		raw rune
 		err error
 	)
-	self.expect(rune(SEPARATOR_VALUE_TYPE))
+	self.expect(SEPARATOR_VALUE_TYPE)
 
 	if raw, _, err = self.r.ReadRune(); err != nil {
 		self.saveError(fmt.Errorf("php_serialize: Error while reading bool value: %v", err))
 	}
 
-	self.expect(rune(SEPARATOR_VALUES))
+	self.expect(SEPARATOR_VALUES)
 	return raw == '1'
 }
 
@@ -94,9 +94,9 @@ func (self *UnSerializer) decodeNumber(isFloat bool) PhpValue {
 		err error
 		val PhpValue
 	)
-	self.expect(rune(SEPARATOR_VALUE_TYPE))
+	self.expect(SEPARATOR_VALUE_TYPE)
 
-	if raw, err = self.readUntil(byte(SEPARATOR_VALUES)); err != nil {
+	if raw, err = self.readUntil(SEPARATOR_VALUES); err != nil {
 		self.saveError(fmt.Errorf("php_serialize: Error while reading number value: %v", err))
 	} else {
 		if isFloat {
@@ -139,7 +139,7 @@ func (self *UnSerializer) decodeString(left, right rune, isFinal bool) PhpValue 
 
 	self.expect(right)
 	if isFinal {
-		self.expect(rune(SEPARATOR_VALUES))
+		self.expect(SEPARATOR_VALUES)
 	}
 	return val
 }
@@ -149,7 +149,7 @@ func (self *UnSerializer) decodeArray() PhpValue {
 	val := make(PhpArray)
 
 	arrLen = self.readLen()
-	self.expect(rune(DELIMITER_OBJECT_LEFT))
+	self.expect(DELIMITER_OBJECT_LEFT)
 
 	for i := 0; i < arrLen; i++ {
 		k, errKey := self.Decode()
@@ -172,7 +172,7 @@ func (self *UnSerializer) decodeArray() PhpValue {
 		}
 	}
 
-	self.expect(rune(DELIMITER_OBJECT_RIGHT))
+	self.expect(DELIMITER_OBJECT_RIGHT)
 	return val
 }
 
@@ -192,7 +192,7 @@ func (self *UnSerializer) decodeSerialized() PhpValue {
 		className: self.readClassName(),
 	}
 
-	rawData := self.decodeString(rune(DELIMITER_OBJECT_LEFT), rune(DELIMITER_OBJECT_RIGHT), false)
+	rawData := self.decodeString(DELIMITER_OBJECT_LEFT, DELIMITER_OBJECT_RIGHT, false)
 	val.data, _ = rawData.(string)
 
 	if self.decodeFunc != nil && val.data != "" {
@@ -217,18 +217,18 @@ func (self *UnSerializer) expect(expected rune) {
 	}
 }
 
-func (self *UnSerializer) readUntil(stop byte) (string, error) {
+func (self *UnSerializer) readUntil(stop rune) (string, error) {
 	var (
-		token byte
+		token rune
 		err   error
 	)
 	buf := bytes.NewBuffer([]byte{})
 
 	for {
-		if token, err = self.r.ReadByte(); err != nil || token == stop {
+		if token, _, err = self.r.ReadRune(); err != nil || token == stop {
 			break
 		} else {
-			buf.WriteByte(token)
+			buf.WriteRune(token)
 		}
 	}
 
@@ -241,9 +241,9 @@ func (self *UnSerializer) readLen() int {
 		err error
 		val int
 	)
-	self.expect(rune(SEPARATOR_VALUE_TYPE))
+	self.expect(SEPARATOR_VALUE_TYPE)
 
-	if raw, err = self.readUntil(byte(SEPARATOR_VALUE_TYPE)); err != nil {
+	if raw, err = self.readUntil(SEPARATOR_VALUE_TYPE); err != nil {
 		self.saveError(fmt.Errorf("php_serialize: Error while reading lenght of value: %v", err))
 	} else {
 		if val, err = strconv.Atoi(raw); err != nil {
@@ -254,7 +254,7 @@ func (self *UnSerializer) readLen() int {
 }
 
 func (self *UnSerializer) readClassName() (res string) {
-	rawClass := self.decodeString(rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT), false)
+	rawClass := self.decodeString(DELIMITER_STRING_LEFT, DELIMITER_STRING_RIGHT, false)
 	res, _ = rawClass.(string)
 	return
 }
