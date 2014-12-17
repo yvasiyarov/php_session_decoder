@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"log"
 )
 
 func UnSerialize(s string) (PhpValue, error) {
@@ -208,6 +209,10 @@ func (self *UnSerializer) expect(expected rune) {
 	if token, _, err := self.r.ReadRune(); err != nil {
 		self.saveError(fmt.Errorf("php_serialize: Error while reading expected rune %#U: %v", expected, err))
 	} else if token != expected {
+		if debugMode {
+			log.Printf("php_serialize: source\n%s\n", self.source)
+			log.Printf("php_serialize: reader info\n%#v\n", self.r)
+		}
 		self.saveError(fmt.Errorf("php_serialize: Expected %#U but have got %#U", expected, token))
 	}
 }
