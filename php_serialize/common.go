@@ -1,25 +1,25 @@
 package php_serialize
 
 const (
-	TOKEN_NULL              = 'N'
-	TOKEN_BOOL              = 'b'
-	TOKEN_INT               = 'i'
-	TOKEN_FLOAT             = 'd'
-	TOKEN_STRING            = 's'
-	TOKEN_ARRAY             = 'a'
-	TOKEN_OBJECT            = 'O'
-	TOKEN_OBJECT_SERIALIZED = 'C'
+	TOKEN_NULL              rune = 'N'
+	TOKEN_BOOL              rune = 'b'
+	TOKEN_INT               rune = 'i'
+	TOKEN_FLOAT             rune = 'd'
+	TOKEN_STRING            rune = 's'
+	TOKEN_ARRAY             rune = 'a'
+	TOKEN_OBJECT            rune = 'O'
+	TOKEN_OBJECT_SERIALIZED rune = 'C'
 
-	SEPARATOR_VALUE_TYPE = ':'
-	SEPARATOR_VALUES     = ';'
+	SEPARATOR_VALUE_TYPE rune = ':'
+	SEPARATOR_VALUES     rune = ';'
 
-	DELIMITER_STRING_LEFT  = '"'
-	DELIMITER_STRING_RIGHT = '"'
-	DELIMITER_OBJECT_LEFT  = '{'
-	DELIMITER_OBJECT_RIGHT = '}'
+	DELIMITER_STRING_LEFT  rune = '"'
+	DELIMITER_STRING_RIGHT rune = '"'
+	DELIMITER_OBJECT_LEFT  rune = '{'
+	DELIMITER_OBJECT_RIGHT rune = '}'
 
-	FORMATTER_FLOAT     = 'g'
-	FORMATTER_PRECISION = 17
+	FORMATTER_FLOAT     byte = 'g'
+	FORMATTER_PRECISION int  = 17
 )
 
 var (

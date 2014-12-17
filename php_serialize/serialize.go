@@ -37,7 +37,7 @@ func (self *Serializer) Encode(v PhpValue) (string, error) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
 		value = self.encodeNumber(v)
 	case string:
-		value = self.encodeString(v, rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT), true)
+		value = self.encodeString(v, DELIMITER_STRING_LEFT, DELIMITER_STRING_RIGHT, true)
 	case PhpArray, map[PhpValue]PhpValue:
 		value = self.encodeArray(v, true)
 	case *PhpObject:
@@ -102,11 +102,11 @@ func (self *Serializer) encodeNumber(v PhpValue) (res string) {
 	// PHP has precision = 17 by default
 	case float32:
 		floatVal, _ := v.(float32)
-		val = strconv.FormatFloat(float64(floatVal), byte(FORMATTER_FLOAT), FORMATTER_PRECISION, 32)
+		val = strconv.FormatFloat(float64(floatVal), FORMATTER_FLOAT, FORMATTER_PRECISION, 32)
 		isFloat = true
 	case float64:
 		floatVal, _ := v.(float64)
-		val = strconv.FormatFloat(float64(floatVal), byte(FORMATTER_FLOAT), FORMATTER_PRECISION, 64)
+		val = strconv.FormatFloat(float64(floatVal), FORMATTER_FLOAT, FORMATTER_PRECISION, 64)
 		isFloat = true
 	}
 
@@ -189,7 +189,7 @@ func (self *Serializer) encodeSerialized(v PhpValue) (res string) {
 		}
 	}
 
-	res += self.encodeString(serialized, rune(DELIMITER_OBJECT_LEFT), rune(DELIMITER_OBJECT_RIGHT), false)
+	res += self.encodeString(serialized, DELIMITER_OBJECT_LEFT, DELIMITER_OBJECT_RIGHT, false)
 	return
 }
 
@@ -198,7 +198,7 @@ func (self *Serializer) prepareLen(l int) string {
 }
 
 func (self *Serializer) prepareClassName(name string) string {
-	return self.encodeString(name, rune(DELIMITER_STRING_LEFT), rune(DELIMITER_STRING_RIGHT), false)
+	return self.encodeString(name, DELIMITER_STRING_LEFT, DELIMITER_STRING_RIGHT, false)
 }
 
 func (self *Serializer) saveError(err error) {

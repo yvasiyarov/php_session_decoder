@@ -35,7 +35,7 @@ func (self *PhpEncoder) Encode() (string, error) {
 
 	for k, v := range self.data {
 		buf.WriteString(k)
-		buf.WriteRune(rune(SEPARATOR_VALUE_NAME))
+		buf.WriteRune(SEPARATOR_VALUE_NAME)
 		if val, err = self.encoder.Encode(v); err != nil {
 			err = fmt.Errorf("php_session: error during encode value for %q: %v", k, err)
 			break
