@@ -22,6 +22,14 @@ const (
 	FORMATTER_PRECISION = 17
 )
 
+var (
+	debugMode = false
+)
+
+func Debug(value bool) {
+	debugMode = value
+}
+
 func NewPhpObject(className string) *PhpObject {
 	return &PhpObject{
 		className: className,
