@@ -9,6 +9,8 @@ const (
 	TOKEN_ARRAY             rune = 'a'
 	TOKEN_OBJECT            rune = 'O'
 	TOKEN_OBJECT_SERIALIZED rune = 'C'
+	TOKEN_REFERENCE         rune = 'R'
+	TOKEN_REFERENCE_OBJECT  rune = 'r'
 
 	SEPARATOR_VALUE_TYPE rune = ':'
 	SEPARATOR_VALUES     rune = ';'
