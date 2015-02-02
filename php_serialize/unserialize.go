@@ -62,6 +62,9 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 			value = self.decodeObject()
 		case TOKEN_OBJECT_SERIALIZED:
 			value = self.decodeSerialized()
+		case TOKEN_REFERENCE, TOKEN_REFERENCE_OBJECT:
+			value = self.decodeReference()
+
 		}
 	}
 
@@ -203,6 +206,14 @@ func (self *UnSerializer) decodeSerialized() PhpValue {
 	}
 
 	return val
+}
+
+func (self *UnSerializer) decodeReference() PhpValue {
+	self.expect(SEPARATOR_VALUE_TYPE)
+	if _, err := self.readUntil(SEPARATOR_VALUES); err != nil {
+		self.saveError(fmt.Errorf("php_serialize: Error while reading reference value: %v", err))
+	}
+	return nil
 }
 
 func (self *UnSerializer) expect(expected rune) {
