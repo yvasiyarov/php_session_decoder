@@ -47,6 +47,8 @@ type PhpValue interface{}
 
 type PhpArray map[PhpValue]PhpValue
 
+type PhpSlice []PhpValue
+
 type PhpObject struct {
 	className string
 	members   PhpArray
