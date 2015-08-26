@@ -2,10 +2,6 @@
 
 package php_session_decoder
 
-// import (
-// // "bytes"
-// )
-
 func Fuzz(data []byte) int {
 	decoder := NewPhpDecoder(string(data))
 	_, err := decoder.Decode()
