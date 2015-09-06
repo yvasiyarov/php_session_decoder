@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+const UNSERIAZABLE_OBJECT_MAX_LEN = 10 * 1024 * 1024 * 1024
+
 func UnSerialize(s string) (PhpValue, error) {
 	decoder := NewUnSerializer(s)
 	decoder.SetSerializedDecodeFunc(SerializedDecodeFunc(UnSerialize))
@@ -259,6 +261,9 @@ func (self *UnSerializer) readLen() int {
 	} else {
 		if val, err = strconv.Atoi(raw); err != nil {
 			self.saveError(fmt.Errorf("php_serialize: Unable to convert %s to int: %v", raw, err))
+		} else if val > UNSERIAZABLE_OBJECT_MAX_LEN {
+			self.saveError(fmt.Errorf("php_serialize: Unserializable object length looks too big(%d). If you are sure you wanna unserialise it, please increase UNSERIAZABLE_OBJECT_MAX_LEN const", val, err))
+			val = 0
 		}
 	}
 	return val
