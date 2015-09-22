@@ -95,6 +95,8 @@ func PhpValueFloat64(p PhpValue) (res float64) {
 	case string:
 		str, _ := p.(string)
 		res, _ = strconv.ParseFloat(str, 64)
+	default:
+		return float64(PhpValueInt(p))
 	}
 	return
 }
