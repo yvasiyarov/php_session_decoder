@@ -66,6 +66,8 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 			value = self.decodeSerialized()
 		case TOKEN_REFERENCE, TOKEN_REFERENCE_OBJECT:
 			value = self.decodeReference()
+		case TOKEN_ARRAYOBJECT:
+			value = self.decodeArrayObject()
 
 		}
 	}
@@ -279,4 +281,35 @@ func (self *UnSerializer) saveError(err error) {
 	if self.lastErr == nil {
 		self.lastErr = err
 	}
+}
+
+func (self *UnSerializer) decodeArrayObject() PhpValue {
+	var err error
+	val := &PhpArrayObject{}
+
+	self.expect(SEPARATOR_VALUE_TYPE)
+	self.expect(TOKEN_INT)
+
+	flags := self.decodeNumber(false)
+	if flags == nil {
+		self.saveError(fmt.Errorf("php_serialize: Unable to read flags of ArrayObject"))
+		return nil
+	}
+	val.flags = PhpValueInt(flags)
+
+	if val.array, err = self.Decode(); err != nil {
+		self.saveError(fmt.Errorf("php_serialize: Can't parse ArrayObject: %v", err))
+		return nil
+	}
+
+	self.expect(SEPARATOR_VALUES)
+	self.expect(TOKEN_MEMBERS)
+	self.expect(SEPARATOR_VALUE_TYPE)
+
+	if val.properties, err = self.Decode(); err != nil {
+		self.saveError(fmt.Errorf("php_serialize: Can't parse properties of ArrayObject: %v", err))
+		return nil
+	}
+
+	return val
 }

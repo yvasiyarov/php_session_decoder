@@ -45,6 +45,8 @@ func (self *Serializer) Encode(v PhpValue) (string, error) {
 		value = self.encodeObject(v)
 	case *PhpObjectSerialized:
 		value = self.encodeSerialized(v)
+	case *PhpArrayObject:
+		value = self.encodeArrayObject(v)
 	}
 
 	return value.String(), self.lastErr
@@ -237,6 +239,29 @@ func (self *Serializer) encodeSerialized(v PhpValue) (buffer bytes.Buffer) {
 	encoded := self.encodeString(serialized, DELIMITER_OBJECT_LEFT, DELIMITER_OBJECT_RIGHT, false)
 	buffer.WriteString(encoded.String())
 	return
+}
+
+func (self *Serializer) encodeArrayObject(v PhpValue) bytes.Buffer {
+	var buffer bytes.Buffer
+	obj, _ := v.(*PhpArrayObject)
+
+	buffer.WriteRune(TOKEN_ARRAYOBJECT)
+	buffer.WriteRune(SEPARATOR_VALUE_TYPE)
+
+	encoded := self.encodeNumber(obj.flags)
+	buffer.WriteString(encoded.String())
+
+	data, _ := self.Encode(obj.array)
+	buffer.WriteString(data)
+
+	buffer.WriteRune(SEPARATOR_VALUES)
+	buffer.WriteRune(TOKEN_MEMBERS)
+	buffer.WriteRune(SEPARATOR_VALUE_TYPE)
+
+	data, _ = self.Encode(obj.properties)
+	buffer.WriteString(data)
+
+	return buffer
 }
 
 func (self *Serializer) prepareLen(l int) string {
