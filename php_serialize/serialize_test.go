@@ -279,7 +279,7 @@ func TestEncodeObject(t *testing.T) {
 	}
 }
 
-func TestEncodeArrayObject(t *testing.T) {
+func TestEncodeArrayOfObjects(t *testing.T) {
 	var (
 		source PhpValue
 		val    string
@@ -412,5 +412,20 @@ func TestEncodeObjectSerializableJSON(t *testing.T) {
 		} else if !strings.Contains(val, "\"bar\":2") {
 			t.Errorf("Array value decoded incorrectly, expected substring %q but have got %q\n", "\"bar\":2", val)
 		}
+	}
+}
+
+func TestEncodeSplArray(t *testing.T) {
+	obj := NewPhpSplArray(PhpArray{"foo": 42}, nil)
+
+	data, err := Serialize(obj)
+	if err != nil {
+		t.Errorf("Error while encoding array object: %v\n", err)
+	}
+
+	expected := "x:i:0;a:1:{s:3:\"foo\";i:42;};m:a:0:{}"
+
+	if data != expected {
+		t.Errorf("SplArray decoded incorrectly, expected: %q, got: %q\n", expected, data)
 	}
 }

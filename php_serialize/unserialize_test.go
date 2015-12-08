@@ -289,7 +289,7 @@ func TestDecodeObject(t *testing.T) {
 	}
 }
 
-func TestDecodeArrayObject(t *testing.T) {
+func TestDecodeArrayOfObjects(t *testing.T) {
 	var (
 		val PhpValue
 		err error
@@ -450,5 +450,66 @@ func TestDecodeObjectSerializableJSON(t *testing.T) {
 		} else if v2 != 2 {
 			t.Errorf("Array value decoded incorrectly, expected: %v, have got: %v\n", 2, v2)
 		}
+	}
+}
+
+func TestDecodeSplArray(t *testing.T) {
+	val, err := UnSerialize("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
+	if err != nil {
+		t.Errorf("Can't decode array object: %v\n", err)
+	}
+
+	obj, ok := val.(*PhpSplArray)
+	if !ok {
+		t.Errorf("Unable to convert %v to *PhpSplArray", val)
+	}
+
+	array, ok := obj.GetArray().(PhpArray)
+	if !ok {
+		t.Errorf("Can't convert %v to PhpArray", obj.GetArray())
+	}
+
+	if len(array) != 1 || array["foo"] != "bar" {
+		t.Errorf("Can't find 'foo' key in %v", array)
+	}
+
+	properties, ok := obj.GetProperties().(PhpArray)
+	if !ok {
+		t.Errorf("Can't convert %v to PhpArray", obj.GetProperties())
+	}
+
+	if len(properties) > 0 {
+		t.Errorf("Expected empty PhpArray, got %v", properties)
+	}
+}
+
+func TestDecodeSplArraySerialized(t *testing.T) {
+	objValue, err := UnSerialize("C:11:\"ArrayObject\":21:{x:i:0;a:0:{};m:a:0:{}}")
+	if err != nil {
+		t.Errorf("Error while decoding object value: %v\n", err)
+	}
+
+	obj, ok := objValue.(*PhpObjectSerialized)
+	if !ok {
+		t.Errorf("Unable to convert %v to *PhpObjectSerialized\n", objValue)
+	}
+
+	array, ok := obj.GetValue().(*PhpSplArray)
+	if !ok {
+		t.Errorf("Unable to convert %v to *PhpSplArray\n", obj.GetValue())
+	}
+
+	if array.flags != 0 {
+		t.Errorf("SplArray flags expected: 0, got %v\n", array.flags)
+	}
+
+	arrayStorage, ok := array.array.(PhpArray)
+	if !ok || arrayStorage == nil {
+		t.Errorf("SplArray.array expected: empty PhpArray, got %v", array.array)
+	}
+
+	arrayProperties, ok := array.properties.(PhpArray)
+	if !ok || arrayProperties == nil {
+		t.Errorf("SplArray.properties expected: empty PhpArray, got %v", array.properties)
 	}
 }

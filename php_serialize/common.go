@@ -11,6 +11,8 @@ const (
 	TOKEN_OBJECT_SERIALIZED rune = 'C'
 	TOKEN_REFERENCE         rune = 'R'
 	TOKEN_REFERENCE_OBJECT  rune = 'r'
+	TOKEN_SPL_ARRAY         rune = 'x'
+	TOKEN_SPL_ARRAY_MEMBERS rune = 'm'
 
 	SEPARATOR_VALUE_TYPE rune = ':'
 	SEPARATOR_VALUES     rune = ';'
@@ -139,4 +141,49 @@ func (self *PhpObjectSerialized) GetValue() PhpValue {
 func (self *PhpObjectSerialized) SetValue(value PhpValue) *PhpObjectSerialized {
 	self.value = value
 	return self
+}
+
+func NewPhpSplArray(array, properties PhpValue) *PhpSplArray {
+	if array == nil {
+		array = make(PhpArray)
+	}
+
+	if properties == nil {
+		properties = make(PhpArray)
+	}
+
+	return &PhpSplArray{
+		array:      array,
+		properties: properties,
+	}
+}
+
+type PhpSplArray struct {
+	flags      int
+	array      PhpValue
+	properties PhpValue
+}
+
+func (self *PhpSplArray) GetFlags() int {
+	return self.flags
+}
+
+func (self *PhpSplArray) SetFlags(value int) {
+	self.flags = value
+}
+
+func (self *PhpSplArray) GetArray() PhpValue {
+	return self.array
+}
+
+func (self *PhpSplArray) SetArray(value PhpValue) {
+	self.array = value
+}
+
+func (self *PhpSplArray) GetProperties() PhpValue {
+	return self.properties
+}
+
+func (self *PhpSplArray) SetProperties(value PhpValue) {
+	self.properties = value
 }
