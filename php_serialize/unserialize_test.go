@@ -459,9 +459,9 @@ func TestDecodeArrayObject(t *testing.T) {
 		t.Errorf("Can't decode array object: %v\n", err)
 	}
 
-	obj, ok := val.(*PhpArrayObject)
+	obj, ok := val.(*PhpSplArray)
 	if !ok {
-		t.Errorf("Unable to convert %v to *PhpArrayObject", val)
+		t.Errorf("Unable to convert %v to *PhpSplArray", val)
 	}
 
 	array, ok := obj.GetArray().(PhpArray)
@@ -494,9 +494,9 @@ func TestDecodeArrayObjectSerialized(t *testing.T) {
 		t.Errorf("Unable to convert %v to *PhpObjectSerialized\n", objValue)
 	}
 
-	array, ok := obj.GetValue().(*PhpArrayObject)
+	array, ok := obj.GetValue().(*PhpSplArray)
 	if !ok {
-		t.Errorf("Unable to convert %v to *PhpArrayObject\n", obj.GetValue())
+		t.Errorf("Unable to convert %v to *PhpSplArray\n", obj.GetValue())
 	}
 
 	if array.flags != 0 {

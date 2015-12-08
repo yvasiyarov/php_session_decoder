@@ -66,7 +66,7 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 			value = self.decodeSerialized()
 		case TOKEN_REFERENCE, TOKEN_REFERENCE_OBJECT:
 			value = self.decodeReference()
-		case TOKEN_ARRAYOBJECT:
+		case TOKEN_SPL_ARRAY:
 			value = self.decodeArrayObject()
 
 		}
@@ -285,7 +285,7 @@ func (self *UnSerializer) saveError(err error) {
 
 func (self *UnSerializer) decodeArrayObject() PhpValue {
 	var err error
-	val := &PhpArrayObject{}
+	val := &PhpSplArray{}
 
 	self.expect(SEPARATOR_VALUE_TYPE)
 	self.expect(TOKEN_INT)
@@ -303,7 +303,7 @@ func (self *UnSerializer) decodeArrayObject() PhpValue {
 	}
 
 	self.expect(SEPARATOR_VALUES)
-	self.expect(TOKEN_MEMBERS)
+	self.expect(TOKEN_SPL_ARRAY_MEMBERS)
 	self.expect(SEPARATOR_VALUE_TYPE)
 
 	if val.properties, err = self.Decode(); err != nil {

@@ -11,8 +11,8 @@ const (
 	TOKEN_OBJECT_SERIALIZED rune = 'C'
 	TOKEN_REFERENCE         rune = 'R'
 	TOKEN_REFERENCE_OBJECT  rune = 'r'
-	TOKEN_ARRAYOBJECT       rune = 'x'
-	TOKEN_MEMBERS           rune = 'm'
+	TOKEN_SPL_ARRAY         rune = 'x'
+	TOKEN_SPL_ARRAY_MEMBERS rune = 'm'
 
 	SEPARATOR_VALUE_TYPE rune = ':'
 	SEPARATOR_VALUES     rune = ';'
@@ -143,7 +143,7 @@ func (self *PhpObjectSerialized) SetValue(value PhpValue) *PhpObjectSerialized {
 	return self
 }
 
-func NewPhpArrayObject(array, properties PhpValue) *PhpArrayObject {
+func NewPhpSplArray(array, properties PhpValue) *PhpSplArray {
 	if array == nil {
 		array = make(PhpArray)
 	}
@@ -152,38 +152,38 @@ func NewPhpArrayObject(array, properties PhpValue) *PhpArrayObject {
 		properties = make(PhpArray)
 	}
 
-	return &PhpArrayObject{
+	return &PhpSplArray{
 		array:      array,
 		properties: properties,
 	}
 }
 
-type PhpArrayObject struct {
+type PhpSplArray struct {
 	flags      int
 	array      PhpValue
 	properties PhpValue
 }
 
-func (self *PhpArrayObject) GetFlags() int {
+func (self *PhpSplArray) GetFlags() int {
 	return self.flags
 }
 
-func (self *PhpArrayObject) SetFlags(value int) {
+func (self *PhpSplArray) SetFlags(value int) {
 	self.flags = value
 }
 
-func (self *PhpArrayObject) GetArray() PhpValue {
+func (self *PhpSplArray) GetArray() PhpValue {
 	return self.array
 }
 
-func (self *PhpArrayObject) SetArray(value PhpValue) {
+func (self *PhpSplArray) SetArray(value PhpValue) {
 	self.array = value
 }
 
-func (self *PhpArrayObject) GetProperties() PhpValue {
+func (self *PhpSplArray) GetProperties() PhpValue {
 	return self.properties
 }
 
-func (self *PhpArrayObject) SetProperties(value PhpValue) {
+func (self *PhpSplArray) SetProperties(value PhpValue) {
 	self.properties = value
 }

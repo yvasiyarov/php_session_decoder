@@ -416,7 +416,7 @@ func TestEncodeObjectSerializableJSON(t *testing.T) {
 }
 
 func TestEncodeArrayObject(t *testing.T) {
-	obj := NewPhpArrayObject(PhpArray{"foo": 42}, nil)
+	obj := NewPhpSplArray(PhpArray{"foo": 42}, nil)
 
 	data, err := Serialize(obj)
 	if err != nil {
