@@ -415,7 +415,7 @@ func TestEncodeObjectSerializableJSON(t *testing.T) {
 	}
 }
 
-func TestEncodeArrayObject(t *testing.T) {
+func TestEncodeSplArray(t *testing.T) {
 	obj := NewPhpSplArray(PhpArray{"foo": 42}, nil)
 
 	data, err := Serialize(obj)
@@ -425,7 +425,7 @@ func TestEncodeArrayObject(t *testing.T) {
 
 	expected := "x:i:0;a:1:{s:3:\"foo\";i:42;};m:a:0:{}"
 
-	if !strings.Contains(data, expected) {
-		t.Errorf("ArrayObject decoded incorrectly, expected: %q, got: %q\n", expected, data)
+	if data != expected {
+		t.Errorf("SplArray decoded incorrectly, expected: %q, got: %q\n", expected, data)
 	}
 }

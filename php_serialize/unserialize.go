@@ -67,7 +67,7 @@ func (self *UnSerializer) Decode() (PhpValue, error) {
 		case TOKEN_REFERENCE, TOKEN_REFERENCE_OBJECT:
 			value = self.decodeReference()
 		case TOKEN_SPL_ARRAY:
-			value = self.decodeArrayObject()
+			value = self.decodeSplArray()
 
 		}
 	}
@@ -283,7 +283,7 @@ func (self *UnSerializer) saveError(err error) {
 	}
 }
 
-func (self *UnSerializer) decodeArrayObject() PhpValue {
+func (self *UnSerializer) decodeSplArray() PhpValue {
 	var err error
 	val := &PhpSplArray{}
 
@@ -292,13 +292,13 @@ func (self *UnSerializer) decodeArrayObject() PhpValue {
 
 	flags := self.decodeNumber(false)
 	if flags == nil {
-		self.saveError(fmt.Errorf("php_serialize: Unable to read flags of ArrayObject"))
+		self.saveError(fmt.Errorf("php_serialize: Unable to read flags of SplArray"))
 		return nil
 	}
 	val.flags = PhpValueInt(flags)
 
 	if val.array, err = self.Decode(); err != nil {
-		self.saveError(fmt.Errorf("php_serialize: Can't parse ArrayObject: %v", err))
+		self.saveError(fmt.Errorf("php_serialize: Can't parse SplArray: %v", err))
 		return nil
 	}
 
@@ -307,7 +307,7 @@ func (self *UnSerializer) decodeArrayObject() PhpValue {
 	self.expect(SEPARATOR_VALUE_TYPE)
 
 	if val.properties, err = self.Decode(); err != nil {
-		self.saveError(fmt.Errorf("php_serialize: Can't parse properties of ArrayObject: %v", err))
+		self.saveError(fmt.Errorf("php_serialize: Can't parse properties of SplArray: %v", err))
 		return nil
 	}
 

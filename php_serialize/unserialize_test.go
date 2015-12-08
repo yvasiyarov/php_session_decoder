@@ -453,7 +453,7 @@ func TestDecodeObjectSerializableJSON(t *testing.T) {
 	}
 }
 
-func TestDecodeArrayObject(t *testing.T) {
+func TestDecodeSplArray(t *testing.T) {
 	val, err := UnSerialize("x:i:0;a:1:{s:3:\"foo\";s:3:\"bar\";};m:a:0:{}")
 	if err != nil {
 		t.Errorf("Can't decode array object: %v\n", err)
@@ -483,7 +483,7 @@ func TestDecodeArrayObject(t *testing.T) {
 	}
 }
 
-func TestDecodeArrayObjectSerialized(t *testing.T) {
+func TestDecodeSplArraySerialized(t *testing.T) {
 	objValue, err := UnSerialize("C:11:\"ArrayObject\":21:{x:i:0;a:0:{};m:a:0:{}}")
 	if err != nil {
 		t.Errorf("Error while decoding object value: %v\n", err)
@@ -500,16 +500,16 @@ func TestDecodeArrayObjectSerialized(t *testing.T) {
 	}
 
 	if array.flags != 0 {
-		t.Errorf("ArrayObject flags expected: 0, got %v\n", array.flags)
+		t.Errorf("SplArray flags expected: 0, got %v\n", array.flags)
 	}
 
 	arrayStorage, ok := array.array.(PhpArray)
 	if !ok || arrayStorage == nil {
-		t.Errorf("ArrayObject.array expected: empty PhpArray, got %v", array.array)
+		t.Errorf("SplArray.array expected: empty PhpArray, got %v", array.array)
 	}
 
 	arrayProperties, ok := array.properties.(PhpArray)
 	if !ok || arrayProperties == nil {
-		t.Errorf("ArrayObject.properties expected: empty PhpArray, got %v", array.properties)
+		t.Errorf("SplArray.properties expected: empty PhpArray, got %v", array.properties)
 	}
 }

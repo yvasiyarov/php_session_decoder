@@ -46,7 +46,7 @@ func (self *Serializer) Encode(v PhpValue) (string, error) {
 	case *PhpObjectSerialized:
 		value = self.encodeSerialized(v)
 	case *PhpSplArray:
-		value = self.encodeArrayObject(v)
+		value = self.encodeSplArray(v)
 	}
 
 	return value.String(), self.lastErr
@@ -241,7 +241,7 @@ func (self *Serializer) encodeSerialized(v PhpValue) (buffer bytes.Buffer) {
 	return
 }
 
-func (self *Serializer) encodeArrayObject(v PhpValue) bytes.Buffer {
+func (self *Serializer) encodeSplArray(v PhpValue) bytes.Buffer {
 	var buffer bytes.Buffer
 	obj, _ := v.(*PhpSplArray)
 
